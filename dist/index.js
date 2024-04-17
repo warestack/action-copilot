@@ -45939,13 +45939,37 @@ function wrappy (fn, cb) {
 /***/ }),
 
 /***/ 7693:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GitHubApiClient = void 0;
 const rest_1 = __nccwpck_require__(5375);
+const core = __importStar(__nccwpck_require__(2186));
 class GitHubApiClient {
     client;
     constructor(token) {
@@ -45969,6 +45993,8 @@ class GitHubApiClient {
             return response.url;
         }
         catch (error) {
+            if (error instanceof Error)
+                core.debug(`Error fetching workflow run logs URL: ${error.message}`);
             throw new Error('Error fetching workflow run logs URL');
         }
     }
@@ -45991,6 +46017,8 @@ class GitHubApiClient {
             return response.data.html_url;
         }
         catch (error) {
+            if (error instanceof Error)
+                core.debug(`Error creating issue: ${error.message}`);
             throw new Error('Error creating issue');
         }
     }
@@ -46017,6 +46045,8 @@ class GitHubApiClient {
             return response.data.html_url;
         }
         catch (error) {
+            if (error instanceof Error)
+                core.debug(`Error creating pull request: ${error.message}`);
             throw new Error('Error creating pull request');
         }
     }
@@ -46159,7 +46189,7 @@ function getRequiredInput(inputName) {
  */
 async function run() {
     try {
-        core.info('🚀 Starting the Warestack Workflow Copilot Action...');
+        core.info('Starting the Warestack Workflow Copilot Action...');
         const githubToken = getRequiredInput('github-token');
         const openaiApiKey = getRequiredInput('openai-api-key');
         // Masking secrets to prevent them from being logged
@@ -46190,8 +46220,8 @@ async function run() {
         if (fixes.length > 0) {
             prUrl = 'test';
             // prUrl = await githubClient.createPullRequest(
-            //   repository.owner.login,
-            //   repository.name,
+            //   repos.owner,
+            //   repo.repo,
             //   'fix-branch',
             //   'main',
             //   'Proposed Fixes',
@@ -46204,8 +46234,8 @@ async function run() {
             if (errors.length > 0) {
                 issueUrl = 'test';
                 // issueUrl = await githubClient.createIssue(
-                //   repository.owner.login,
-                //   repository.name,
+                //   repo.owner,
+                //   repo.repo,
                 //   'Detected Issues',
                 //   errors
                 // )
@@ -46218,7 +46248,7 @@ async function run() {
     catch (error) {
         // Fail the workflow run if an error occurs
         if (error instanceof Error) {
-            core.error(`❌ Error executing Warestack Workflow Copilot Action: ${error.message}`);
+            core.error(`Error executing Warestack Workflow Copilot Action: ${error.message}`);
             core.setFailed(error.message);
         }
     }
