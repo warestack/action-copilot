@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read  # This allows the token to read actions and their logs
 
 jobs:
   # Define the job for running TypeScript-related tests and checks.
