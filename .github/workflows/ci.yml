@@ -68,7 +68,7 @@ jobs:
 
       # Print URL of the created GitHub Issue if any issue is created
       - name: Print Issue URL
-        run: echo "${{ steps.copilot.outputs.issue-pr }}"
+        run: echo "${{ steps.copilot.outputs.issue-url }}"
 
       # Print URL of the created GitHub PR if any PR is created
       - name: Print PR URL
