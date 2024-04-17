@@ -1,23 +1,29 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Warestack Workflow Copilot'
+description:
+  'Assists in automating workflow processes by providing AI-driven insights and
+  automations.'
+author: 'Dimitris Kargatzis <dimitris.kargatzis@warestacck.com>'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: 'monitor'
+  color: 'white'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  github-token:
+    description: 'GitHub token for API access'
     required: true
-    default: '1000'
+  openai-api-key:
+    description: 'OpenAI API key for querying GPT models'
+    required: true
 
 # Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  issue-url:
+    description: 'URL of the created GitHub Issue if any issue is created'
+  pr-url:
+    description: 'URL of the created GitHub Pull Request if any PR is generated'
 
 runs:
   using: node20

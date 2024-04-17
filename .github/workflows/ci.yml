@@ -2,16 +2,19 @@ name: Continuous Integration
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
   push:
-    branches:
-      - main
+    branches: [main]
+  paths:
+    - '**/*.js'  # Paths filter to run the workflow only when JavaScript files are changed
+    - '**/*.ts'  # If TypeScript is used
+    - '.github/workflows/**'  # Include workflow files
 
 permissions:
   contents: read
 
 jobs:
+  # Define the job for running TypeScript-related tests and checks.
   test-typescript:
     name: TypeScript Tests
     runs-on: ubuntu-latest
@@ -21,6 +24,7 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
+      # Installs npm dependencies defined in package-lock.json to get reproducible builds.
       - name: Setup Node.js
         id: setup-node
         uses: actions/setup-node@v4
@@ -32,33 +36,44 @@ jobs:
         id: npm-ci
         run: npm ci
 
+      # Run code formatting check with Prettier.
       - name: Check Format
         id: npm-format-check
         run: npm run format:check
 
+      # Executes ESLint to catch syntax and style issues.
       - name: Lint
         id: npm-lint
         run: npm run lint
 
+      # Runs unit tests using the npm script.
       - name: Test
         id: npm-ci-test
         run: npm run ci-test
 
+  # Define the job to test the GitHub Action itself.
   test-action:
     name: GitHub Actions Test
     runs-on: ubuntu-latest
 
     steps:
+      # Checks out the repository so the action can be tested.
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Test Local Action
-        id: test-action
+      # Runs the action located at the root of the repository.
+      - name: Run Local Action
+        id: copilot
         uses: ./
         with:
-          milliseconds: 2000
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
 
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+      # Print URL of the created GitHub Issue if any issue is created
+      - name: Print Issue URL
+        run: echo "${{ steps.copilot.outputs.issue-pr }}"
+
+      # Print URL of the created GitHub PR if any PR is created
+      - name: Print PR URL
+        run: echo "${{ steps.copilot.outputs.pr-url }}"
