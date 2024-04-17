@@ -22,7 +22,7 @@ function getRequiredInput(inputName: string): string {
  */
 export async function run(): Promise<void> {
   try {
-    core.info('🚀 Starting the Warestack Workflow Copilot Action...')
+    core.info('Starting the Warestack Workflow Copilot Action...')
 
     const githubToken = getRequiredInput('github-token')
     const openaiApiKey = getRequiredInput('openai-api-key')
@@ -94,7 +94,7 @@ export async function run(): Promise<void> {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) {
       core.error(
-        `❌ Error executing Warestack Workflow Copilot Action: ${error.message}`
+        `Error executing Warestack Workflow Copilot Action: ${error.message}`
       )
       core.setFailed(error.message)
     }

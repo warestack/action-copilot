@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest'
+import * as core from '@actions/core'
 
 export class GitHubApiClient {
   private client
@@ -29,6 +30,8 @@ export class GitHubApiClient {
 
       return response.url
     } catch (error) {
+      if (error instanceof Error)
+        core.debug(`Error fetching workflow run logs URL: ${error.message}`)
       throw new Error('Error fetching workflow run logs URL')
     }
   }
@@ -56,6 +59,8 @@ export class GitHubApiClient {
       })
       return response.data.html_url
     } catch (error) {
+      if (error instanceof Error)
+        core.debug(`Error creating issue: ${error.message}`)
       throw new Error('Error creating issue')
     }
   }
@@ -89,6 +94,8 @@ export class GitHubApiClient {
       })
       return response.data.html_url
     } catch (error) {
+      if (error instanceof Error)
+        core.debug(`Error creating pull request: ${error.message}`)
       throw new Error('Error creating pull request')
     }
   }
