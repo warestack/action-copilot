@@ -31,18 +31,17 @@ export async function run(): Promise<void> {
     core.setSecret(githubToken)
     core.setSecret(openaiApiKey)
 
-    const { repository, run_id } = github.context.payload
-    if (!repository || !run_id) {
+    const repo = github.context.repo
+    const runId = github.context.runId
+    if (!repo || !runId) {
       throw new Error(
         'GitHub context payload missing necessary data (repository or run_id)'
       )
     }
 
     // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(
-      `Repository: ${repository.name} Owner: ${repository.owner.login}`
-    )
-    core.debug(`Run ID: ${run_id}`)
+    core.debug(`Repository: ${repo.repo} Owner: ${repo.owner}`)
+    core.debug(`Run ID: ${runId}`)
 
     const githubClient = new GitHubApiClient(githubToken)
     const openaiClient = new OpenAIApiClient(openaiApiKey)
@@ -52,9 +51,9 @@ export async function run(): Promise<void> {
     let prUrl
 
     const logUrl = await githubClient.getWorkflowRunLogsUrl(
-      repository.owner.login,
-      repository.name,
-      run_id
+      repo.owner,
+      repo.repo,
+      runId
     )
     const rawLog = await downloadAndProcessLogsArchive(logUrl)
     // eslint-disable-next-line prefer-const
@@ -67,8 +66,8 @@ export async function run(): Promise<void> {
     if (fixes.length > 0) {
       prUrl = 'test'
       // prUrl = await githubClient.createPullRequest(
-      //   repository.owner.login,
-      //   repository.name,
+      //   repos.owner,
+      //   repo.repo,
       //   'fix-branch',
       //   'main',
       //   'Proposed Fixes',
@@ -80,8 +79,8 @@ export async function run(): Promise<void> {
       if (errors.length > 0) {
         issueUrl = 'test'
         // issueUrl = await githubClient.createIssue(
-        //   repository.owner.login,
-        //   repository.name,
+        //   repo.owner,
+        //   repo.repo,
         //   'Detected Issues',
         //   errors
         // )

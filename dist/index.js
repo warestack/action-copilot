@@ -46048,18 +46048,16 @@ class OpenAIApiClient {
     async analyzeLogs(log) {
         const errorAnalysis = await this.client.chat.completions.create({
             messages: [
-                { role: 'system', content: constants_1.Queries.IDENTIFY_ERRORS },
-                { role: 'user', content: log }
+                { role: 'user', content: `${constants_1.Queries.EXPLAIN_ERROR}:\n${log}` }
             ],
             model: constants_1.Models.GTP_4_TURBO
         });
         return errorAnalysis.choices[0].message.content || log;
     }
-    async proposeFixes(issues) {
+    async proposeFixes(issue) {
         const fixes = await this.client.chat.completions.create({
             messages: [
-                { role: 'system', content: constants_1.Queries.PROPOSE_FIXES },
-                { role: 'user', content: issues }
+                { role: 'user', content: `${constants_1.Queries.PROPOSE_FIXES}:\n${issue}` }
             ],
             model: constants_1.Models.GTP_4_TURBO
         });
@@ -46083,8 +46081,9 @@ exports.errorPatterns = exports.TokenLimits = exports.Models = exports.Queries =
  * @constant
  */
 exports.Queries = {
+    EXPLAIN_ERROR: 'Explain the following error extracted from the GitHub workflow logs:\n',
     IDENTIFY_ERRORS: 'Highlight the errors in the following logs:\n',
-    PROPOSE_FIXES: 'Propose code fixes for the following errors:\n',
+    PROPOSE_FIXES: 'Propose code fixes for the following error:\n',
     GENERATE_PR_DETAILS: 'Generate a pull request title and description based on the following fixes:\n',
     GENERATE_ISSUE_DETAILS: 'Generate a pull request title and description based on the following issues and suggest potential fixes:\n'
 };
@@ -46166,20 +46165,21 @@ async function run() {
         // Masking secrets to prevent them from being logged
         core.setSecret(githubToken);
         core.setSecret(openaiApiKey);
-        const { repository, run_id } = github.context.payload;
-        if (!repository || !run_id) {
+        const repo = github.context.repo;
+        const runId = github.context.runId;
+        if (!repo || !runId) {
             throw new Error('GitHub context payload missing necessary data (repository or run_id)');
         }
         // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        core.debug(`Repository: ${repository.name} Owner: ${repository.owner.login}`);
-        core.debug(`Run ID: ${run_id}`);
+        core.debug(`Repository: ${repo.repo} Owner: ${repo.owner}`);
+        core.debug(`Run ID: ${runId}`);
         const githubClient = new github_1.GitHubApiClient(githubToken);
         const openaiClient = new openai_1.OpenAIApiClient(openaiApiKey);
         let errors;
         const fixes = [];
         let issueUrl;
         let prUrl;
-        const logUrl = await githubClient.getWorkflowRunLogsUrl(repository.owner.login, repository.name, run_id);
+        const logUrl = await githubClient.getWorkflowRunLogsUrl(repo.owner, repo.repo, runId);
         const rawLog = await (0, log_handler_1.downloadAndProcessLogsArchive)(logUrl);
         // eslint-disable-next-line prefer-const
         errors = (0, log_handler_1.extractErrors)(rawLog);
