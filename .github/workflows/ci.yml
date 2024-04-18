@@ -62,7 +62,7 @@ jobs:
       # Introduce an intentional failure
       - name: Intentional Failure
         run: exit 1
-        continue-on-error: true  # This allows the workflow to continue even if this step fails
+        continue-on-error: true # This allows the workflow to continue even if this step fails
 
       # Runs the action located at the root of the repository.
       - name: Run Local Action
