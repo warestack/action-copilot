@@ -26,7 +26,7 @@ export async function run(): Promise<void> {
 
     const githubToken = getRequiredInput('github-token')
     const openaiApiKey = getRequiredInput('openai-api-key')
-    const runId: string = getRequiredInput('workflow-run-id')
+    const runId = getRequiredInput('workflow-run-id')
 
     // Masking secrets to prevent them from being logged
     core.setSecret(githubToken)
