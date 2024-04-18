@@ -12,22 +12,29 @@ export class GitHubApiClient {
    * Retrieves the URL to download an archive of log files for a specific workflow run.
    * @param {string} owner - The owner of the repository.
    * @param {string} repo - The repository name.
-   * @param {number} run_id - The ID of the workflow run.
+   * @param {number} runId - The ID of the workflow run.
    * @returns {Promise<string>} - A promise that resolves to the URL for downloading the log archive.
    */
   async getWorkflowRunLogsUrl(
     owner: string,
     repo: string,
-    run_id: number
+    runId: number
   ): Promise<string> {
     try {
-      // Fetch logs
-      const response = await this.client.actions.downloadWorkflowRunLogs({
-        owner,
-        repo,
-        run_id
-      })
+      const response = await this.client.request(
+        'GET /repos/{owner}/{repo}/actions/runs/{run_id}/logs',
+        {
+          owner,
+          repo,
+          run_id: runId,
+          headers: {
+            'X-GitHub-Api-Version': '2022-11-28'
+          }
+        }
+      )
 
+      // Assuming the API call returns a URL to download the logs
+      core.debug(`Logs URL: ${response.url}`)
       return response.url
     } catch (error) {
       if (error instanceof Error)
