@@ -26,13 +26,14 @@ export async function run(): Promise<void> {
 
     const githubToken = getRequiredInput('github-token')
     const openaiApiKey = getRequiredInput('openai-api-key')
+    const runId: string = getRequiredInput('workflow-run-id')
 
     // Masking secrets to prevent them from being logged
     core.setSecret(githubToken)
     core.setSecret(openaiApiKey)
 
     const repo = github.context.repo
-    const runId = github.context.runId
+    // const runId = github.context.runId
     if (!repo || !runId) {
       throw new Error(
         'GitHub context payload missing necessary data (repository or run_id)'
@@ -53,7 +54,7 @@ export async function run(): Promise<void> {
     const logUrl = await githubClient.getWorkflowRunLogsUrl(
       repo.owner,
       repo.repo,
-      runId
+      Number(runId)
     )
     const rawLog = await downloadAndProcessLogsArchive(logUrl)
     // eslint-disable-next-line prefer-const

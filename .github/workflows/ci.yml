@@ -63,19 +63,3 @@ jobs:
       - name: Intentional Failure
         run: exit 1
         continue-on-error: true # This allows the workflow to continue even if this step fails
-
-      # Runs the action located at the root of the repository.
-      - name: Run Local Action
-        id: copilot
-        uses: ./
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-
-      # Print URL of the created GitHub Issue if any issue is created
-      - name: Print Issue URL
-        run: echo "${{ steps.copilot.outputs.issue-url }}"
-
-      # Print URL of the created GitHub PR if any PR is created
-      - name: Print PR URL
-        run: echo "${{ steps.copilot.outputs.pr-url }}"

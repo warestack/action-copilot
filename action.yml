@@ -17,6 +17,9 @@ inputs:
   openai-api-key:
     description: 'OpenAI API key for querying GPT models'
     required: true
+  workflow-run-id:
+    description: 'ID of the completed workflow run'
+    required: true
 
 # Define your outputs here.
 outputs:

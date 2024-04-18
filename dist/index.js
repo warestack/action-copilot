@@ -46196,11 +46196,12 @@ async function run() {
         core.info('Starting the Warestack Workflow Copilot Action...');
         const githubToken = getRequiredInput('github-token');
         const openaiApiKey = getRequiredInput('openai-api-key');
+        const runId = getRequiredInput('workflow-run-id');
         // Masking secrets to prevent them from being logged
         core.setSecret(githubToken);
         core.setSecret(openaiApiKey);
         const repo = github.context.repo;
-        const runId = github.context.runId;
+        // const runId = github.context.runId
         if (!repo || !runId) {
             throw new Error('GitHub context payload missing necessary data (repository or run_id)');
         }
@@ -46213,7 +46214,7 @@ async function run() {
         const fixes = [];
         let issueUrl;
         let prUrl;
-        const logUrl = await githubClient.getWorkflowRunLogsUrl(repo.owner, repo.repo, runId);
+        const logUrl = await githubClient.getWorkflowRunLogsUrl(repo.owner, repo.repo, Number(runId));
         const rawLog = await (0, log_handler_1.downloadAndProcessLogsArchive)(logUrl);
         // eslint-disable-next-line prefer-const
         errors = (0, log_handler_1.extractErrors)(rawLog);
