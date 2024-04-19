@@ -13,12 +13,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download and Process Logs
-        uses: ./
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          workflow-run-id: ${{ github.event.workflow_run.id }} # ID of the completed workflow run
-
       # Runs the action located at the root of the repository.
       - name: Run Local Action
         id: copilot
