@@ -61,7 +61,7 @@ export class GitClient {
   ): Promise<void> {
     try {
       // Change to the repository directory if not already there
-      process.chdir('tech_entity_recognition')
+      process.chdir(process.env.GITHUB_WORKSPACE || '')
       // Decode URL encoded characters
 
       const patchCon = `--- a/.github/workflows/setup_and_test.yaml
