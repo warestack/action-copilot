@@ -73,7 +73,7 @@
     "adm-zip": "^0.5.12",
     "axios": "^1.6.8",
     "diff": "^5.2.0",
-    "openai": "^4.35.0"
+    "openai": "^4.38.2"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
