@@ -3,8 +3,9 @@ import AdmZip from 'adm-zip'
 import * as core from '@actions/core'
 import * as fs from 'fs'
 import * as path from 'path'
+import { LogEntry } from '../interfaces/log'
 
-import { errorPatterns } from '../conf/constants'
+import { errorPatterns, timestampRegex } from '../conf/constants'
 
 /**
  * Downloads and extracts log files from a given URL.
@@ -37,13 +38,13 @@ export async function downloadAndExtractLogs(
 }
 
 /**
- * Downloads the log archive and processes each log file as a string.
+ * Downloads the log archive, extracts it, and returns log details for each text file.
  * @param {string} url - The URL to download the log archive from.
- * @returns {Promise<void>} - A promise that resolves when logs have been processed.
+ * @returns {Promise<LogEntry[]>} - A promise that resolves with an array of log entries.
  */
 export async function downloadAndProcessLogsArchive(
   url: string
-): Promise<string> {
+): Promise<LogEntry[]> {
   try {
     const response = await axios({
       url,
@@ -52,19 +53,22 @@ export async function downloadAndProcessLogsArchive(
     })
 
     const zip = new AdmZip(response.data)
-    // logEntries is an array of ZipEntry objects
     const logEntries = zip.getEntries()
-    let rawLog = ''
 
-    for (let i = 0; i < logEntries.length; i++) {
-      const entry = logEntries[i]
-      if (entry.entryName.endsWith('.log')) {
-        const logContent = entry.getData().toString('utf8')
-        rawLog += `${logContent}\n`
-      }
-    }
-
-    return rawLog
+    return logEntries
+      .filter(entry => entry.entryName.endsWith('.txt'))
+      .map(entry => {
+        const filename = entry.entryName
+          .split('/')
+          .pop()!
+          .replace('.txt', '')
+          .replace(/^\d+_/, '')
+        const content = entry.getData().toString('utf8')
+        return {
+          filename,
+          content
+        }
+      })
   } catch (error) {
     throw new Error('Error downloading or extracting logs')
   }
@@ -76,4 +80,9 @@ export function extractErrors(logs: string): string[] {
     errorPatterns.some(pattern => pattern.test(line))
   )
   return errors
+}
+
+export function removeTimestamps(logContent: string): string {
+  // Replace timestamps with empty strings
+  return logContent.replace(timestampRegex, '')
 }

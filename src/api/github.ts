@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/rest'
 import * as core from '@actions/core'
+import { Job } from '../interfaces/workflow'
 
 export class GitHubApiClient {
   private client
@@ -10,28 +11,22 @@ export class GitHubApiClient {
 
   /**
    * Retrieves the URL to download an archive of log files for a specific workflow run.
-   * @param {string} owner - The owner of the repository.
-   * @param {string} repo - The repository name.
+   * @param {string} repoOwner - The owner of the repository.
+   * @param {string} repoName - The repository name.
    * @param {number} runId - The ID of the workflow run.
    * @returns {Promise<string>} - A promise that resolves to the URL for downloading the log archive.
    */
   async getWorkflowRunLogsUrl(
-    owner: string,
-    repo: string,
+    repoOwner: string,
+    repoName: string,
     runId: number
   ): Promise<string> {
     try {
-      const response = await this.client.request(
-        'GET /repos/{owner}/{repo}/actions/runs/{run_id}/logs',
-        {
-          owner,
-          repo,
-          run_id: runId,
-          headers: {
-            'X-GitHub-Api-Version': '2022-11-28'
-          }
-        }
-      )
+      const response = await this.client.actions.downloadWorkflowRunLogs({
+        owner: repoOwner,
+        repo: repoName,
+        run_id: runId
+      })
 
       // Assuming the API call returns a URL to download the logs
       core.debug(`Logs URL: ${response.url}`)
@@ -40,6 +35,79 @@ export class GitHubApiClient {
       if (error instanceof Error)
         core.debug(`Error fetching workflow run logs URL: ${error.message}`)
       throw new Error('Error fetching workflow run logs URL')
+    }
+  }
+
+  /**
+   * Retrieves the jobs associated with a workflow run.
+   *
+   * @async
+   * @param {string} repoOwner - The owner of the repository.
+   * @param {string} repoName - The repository name.
+   * @param {number} runId - The ID of the workflow run.
+   * @returns {Promise<Array<Job>>} A promise that resolves with an array of job objects.
+   */
+  async getWorkflowRunJobs(
+    repoOwner: string,
+    repoName: string,
+    runId: number
+  ): Promise<Job[]> {
+    try {
+      const { data: jobsData } =
+        await this.client.actions.listJobsForWorkflowRun({
+          owner: repoOwner,
+          repo: repoName,
+          run_id: runId
+        })
+
+      const jobs: Job[] = jobsData.jobs.map(job => ({
+        id: job.id,
+        name: job.name,
+        status: job.status,
+        conclusion: job.conclusion,
+        // Assuming `steps` is present and formatted similarly, else you need to map again inside
+        steps: job.steps
+      }))
+
+      core.debug(`Number of jobs for given workflow run: ${jobs.length}`)
+      return jobs
+    } catch (error) {
+      if (error instanceof Error)
+        core.debug(
+          `Error fetching jobs for given workflow run: ${error.message}`
+        )
+      throw new Error('Error fetching jobs for given workflow run')
+    }
+  }
+
+  /**
+   * Retrieves the YAML file content of a workflow at a specific commit.
+   *
+   * @param {string} owner - The owner of the repository.
+   * @param {string} repo - The name of the repository.
+   * @param {string} path - The path to the YAML file.
+   * @param {string} sha - The commit SHA.
+   * @return {Promise<void>} - A promise representing the operation.
+   * @throws {Error} - If there is an error retrieving the file content.
+   */
+  async getWorkflowYAMLAtCommit(
+    owner: string,
+    repo: string,
+    path: string,
+    sha: string
+  ): Promise<any> {
+    try {
+      const response = await this.client.repos.getContent({
+        owner,
+        repo,
+        path,
+        sha
+      })
+      return response.data
+    } catch (error) {
+      if (error instanceof Error)
+        core.debug(`Error getting file content: ${error.message}`)
+      throw new Error('Error getting file content')
     }
   }
 

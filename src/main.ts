@@ -5,8 +5,10 @@ import { OpenAIApiClient } from './api/openai'
 
 import {
   downloadAndProcessLogsArchive,
-  extractErrors
+  removeTimestamps
 } from './utils/log_handler'
+import { LogEntry } from './interfaces/log'
+import { GitClient } from './api/git'
 
 function getRequiredInput(inputName: string): string {
   const value = core.getInput(inputName, { required: true })
@@ -44,9 +46,10 @@ export async function run(): Promise<void> {
     core.debug(`Repository: ${repo.repo} Owner: ${repo.owner}`)
     core.debug(`Run ID: ${runId}`)
 
+    const git = new GitClient(githubToken)
     const githubClient = new GitHubApiClient(githubToken)
     const openaiClient = new OpenAIApiClient(openaiApiKey)
-    let errors: string[]
+    const errors: string[] = []
     const fixes: string[] = []
     let issueUrl
     let prUrl
@@ -56,38 +59,72 @@ export async function run(): Promise<void> {
       repo.repo,
       Number(runId)
     )
-    const rawLog = await downloadAndProcessLogsArchive(logUrl)
-    // eslint-disable-next-line prefer-const
-    errors = extractErrors(rawLog)
-    for (let i = 0; i < errors.length; i++) {
-      errors[i] = await openaiClient.analyzeLogs(rawLog)
-      fixes[i] = await openaiClient.proposeFixes(errors[i])
-    }
+    const jobs = await githubClient.getWorkflowRunJobs(
+      repo.owner,
+      repo.repo,
+      Number(runId)
+    )
+    const logEntries: LogEntry[] = await downloadAndProcessLogsArchive(logUrl)
 
-    if (fixes.length > 0) {
-      prUrl = 'test'
-      // prUrl = await githubClient.createPullRequest(
-      //   repos.owner,
-      //   repo.repo,
-      //   'fix-branch',
-      //   'main',
-      //   'Proposed Fixes',
-      //   fixes
-      // )
-      core.setOutput('pr-url', prUrl)
-      core.info('✅ Pull request created successfully.')
-    } else {
-      if (errors.length > 0) {
-        issueUrl = 'test'
-        // issueUrl = await githubClient.createIssue(
-        //   repo.owner,
-        //   repo.repo,
-        //   'Detected Issues',
-        //   errors
-        // )
+    for (let i = 0; i < jobs.length; i++) {
+      // const combinedErrors = extractErrors(rawLogs[i]).join('\n')
+      // if (combinedErrors) {
+      //   const errorHighlights = await openaiClient.analyzeLogs(combinedErrors)
+      //   // errors.push(highlightError)
+      //   // const fix = await openaiClient.proposeFixes(highlightError)
+      //   // if (fix) fixes.push(fix)
+      //   core.debug(`Error highlight: ${errorHighlights}\n`)
+      // }
+      const steps = jobs[i].steps || []
+      for (let l = 0; l < steps.length; l++) {
+        if (steps[l].conclusion !== 'failure') continue
+        const logEntry = logEntries.find(
+          entry => entry.filename === steps[l].name
+        )
+        if (logEntry) {
+          const errorHighlights = await openaiClient.analyzeLogs(
+            removeTimestamps(logEntry.content)
+          )
+          const issueDetails =
+            await openaiClient.generateIssueDetails(errorHighlights)
+
+          issueUrl = await githubClient.createIssue(
+            'dkargatzis',
+            'tech_entity_recognition',
+            issueDetails.title,
+            issueDetails.description
+          )
+
+          if (issueUrl) {
+            const prDetails = await openaiClient.generatePrDetails(
+              issueDetails.description
+            )
+            // await git.clone(
+            //   'dkargatzis',
+            //   'tech_entity_recognition',
+            //   'feature/env-and-pipelines-config'
+            // )
+            await git.patchCommitAndPush(
+              // 'tech_entity_recognition',
+              prDetails.patch,
+              prDetails.commit,
+              prDetails.branch
+            )
+            prUrl = await githubClient.createPullRequest(
+              'dkargatzis',
+              'tech_entity_recognition',
+              prDetails.branch,
+              'tech_entity_recognition',
+              prDetails.title,
+              prDetails.description
+            )
+          }
+        }
+        core.setOutput('issue-url', issueUrl)
+        core.info('✅ Issue created successfully.')
+        core.setOutput('pr-url', prUrl)
+        core.info('✅ Issue created successfully.')
       }
-      core.setOutput('issue-url', issueUrl)
-      core.info('✅ Issue created successfully.')
     }
 
     core.info('🎉 Action completed successfully')
