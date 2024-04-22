@@ -51109,8 +51109,10 @@ class GitClient {
             // Apply the patch
             // await this.git.applyPatch(patchFilePath)
             // await this.git.applyPatch(patchFile)
-            await this.execAsync(`git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`);
-            await this.execAsync('git fetch --all');
+            // await this.execAsync(
+            //   `git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`
+            // )
+            // await this.execAsync('git fetch --all')
             await this.execAsync(`git checkout -b ${newBranchName}`);
             const { stderr } = await this.execAsync(`git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`);
             if (stderr)
