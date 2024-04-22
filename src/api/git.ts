@@ -24,7 +24,6 @@ export class GitClient {
   /**
    * Clone a repository from GitHub using the provided token, repository owner, repository name, and branch.
    *
-   * @param {string} token - The authentication token for accessing the repository.
    * @param {string} repoOwner - The owner of the repository.
    * @param {string} repoName - The name of the repository.
    * @param {string} branch - The branch to clone.
@@ -97,7 +96,7 @@ export class GitClient {
       // Apply the patch
       // await this.git.applyPatch(patchFilePath)
       // await this.git.applyPatch(patchFile)
-      await this.git.checkoutBranch(newBranchName, 'origin')
+      exec(`git checkout -b ${newBranchName}`)
       exec(
         `git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`,
         (error, stdout, stderr) => {
@@ -114,9 +113,8 @@ export class GitClient {
         }
       )
 
-      // await this.git.add('.')
-      await this.git.commit(commitMessage)
-      await this.git.push('origin', newBranchName)
+      exec(`git commit -am ${commitMessage}`)
+      exec(`git push --set-upstream origin ${newBranchName}`)
     } catch (error) {
       if (error instanceof Error) {
         core.error(`Error patching, committing and pushing: ${error.message}`)
