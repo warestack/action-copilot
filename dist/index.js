@@ -51046,7 +51046,6 @@ class GitClient {
     /**
      * Clone a repository from GitHub using the provided token, repository owner, repository name, and branch.
      *
-     * @param {string} token - The authentication token for accessing the repository.
      * @param {string} repoOwner - The owner of the repository.
      * @param {string} repoName - The name of the repository.
      * @param {string} branch - The branch to clone.
@@ -51108,7 +51107,10 @@ class GitClient {
             // Apply the patch
             // await this.git.applyPatch(patchFilePath)
             // await this.git.applyPatch(patchFile)
-            await this.git.checkoutBranch(newBranchName, 'origin');
+            (0, child_process_1.exec)(`git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`);
+            (0, child_process_1.exec)('git fetch --all');
+            core.debug(`List of remotes: ${(0, child_process_1.exec)('git remote -v')}`);
+            (0, child_process_1.exec)(`git checkout -b ${newBranchName}`);
             (0, child_process_1.exec)(`git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`, (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Error: ${error.message}`);
@@ -51121,9 +51123,8 @@ class GitClient {
                 console.log(`stdout: ${stdout}`);
                 console.log('Patch applied successfully.');
             });
-            // await this.git.add('.')
-            await this.git.commit(commitMessage);
-            await this.git.push('origin', newBranchName);
+            (0, child_process_1.exec)(`git commit -am ${commitMessage}`);
+            (0, child_process_1.exec)(`git push -u origin ${newBranchName}`);
         }
         catch (error) {
             if (error instanceof Error) {
