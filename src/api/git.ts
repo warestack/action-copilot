@@ -100,7 +100,7 @@ export class GitClient {
         `git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`
       )
       exec('git fetch --all')
-      core.debug(await this.git.listRemote())
+      core.debug(`List of remotes: ${exec('git remote -v')}`)
       exec(`git checkout -b ${newBranchName}`)
       exec(
         `git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`,
