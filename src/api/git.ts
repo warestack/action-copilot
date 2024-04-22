@@ -96,6 +96,8 @@ export class GitClient {
       // Apply the patch
       // await this.git.applyPatch(patchFilePath)
       // await this.git.applyPatch(patchFile)
+      exec('git fetch --all')
+      core.debug(await this.git.listRemote())
       exec(`git checkout -b ${newBranchName}`)
       exec(
         `git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`,
@@ -114,7 +116,7 @@ export class GitClient {
       )
 
       exec(`git commit -am ${commitMessage}`)
-      exec(`git push --set-upstream origin ${newBranchName}`)
+      exec(`git push -u origin ${newBranchName}`)
     } catch (error) {
       if (error instanceof Error) {
         core.error(`Error patching, committing and pushing: ${error.message}`)
