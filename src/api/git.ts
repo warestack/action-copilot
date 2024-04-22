@@ -96,6 +96,9 @@ export class GitClient {
       // Apply the patch
       // await this.git.applyPatch(patchFilePath)
       // await this.git.applyPatch(patchFile)
+      exec(
+        `git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`
+      )
       exec('git fetch --all')
       core.debug(await this.git.listRemote())
       exec(`git checkout -b ${newBranchName}`)
