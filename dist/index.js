@@ -51436,10 +51436,10 @@ class OpenAIApiClient {
         core.debug(`Content: ${issueDetails.title}`);
         return issueDetails;
     }
-    async generatePrDetails(issue) {
+    async generatePrDetails(issue, issueUrl) {
         this.messages.push({
             role: 'user',
-            content: `${constants_1.Queries.GENERATE_PR_DETAILS}\n ${issue} \n ${constants_1.workflowYamlContent} \n${constants_1.PR_INSTRUCTIONS}`
+            content: `${constants_1.Queries.GENERATE_PR_DETAILS}\n ${issue} \n ${constants_1.workflowYamlContent} \n${constants_1.PR_INSTRUCTIONS} \n'Issue URL: ${issueUrl}`
         });
         const details = await this.client.chat.completions.create({
             model: constants_1.Models.GTP_4_TURBO_2024_04_09,
@@ -51689,7 +51689,7 @@ async function run() {
                     const issueDetails = await openaiClient.generateIssueDetails(errorHighlights);
                     issueUrl = await githubClient.createIssue(repo.owner, repo.repo, issueDetails.title, issueDetails.description);
                     if (issueUrl) {
-                        const prDetails = await openaiClient.generatePrDetails(issueDetails.description);
+                        const prDetails = await openaiClient.generatePrDetails(issueDetails.description, issueUrl);
                         // await git.clone(
                         //   'dkargatzis',
                         //   'tech_entity_recognition',

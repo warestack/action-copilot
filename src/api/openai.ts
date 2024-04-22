@@ -69,10 +69,10 @@ export class OpenAIApiClient {
     return issueDetails
   }
 
-  async generatePrDetails(issue: string): Promise<PrDetails> {
+  async generatePrDetails(issue: string, issueUrl: string): Promise<PrDetails> {
     this.messages.push({
       role: 'user',
-      content: `${Queries.GENERATE_PR_DETAILS}\n ${issue} \n ${workflowYamlContent} \n${PR_INSTRUCTIONS}`
+      content: `${Queries.GENERATE_PR_DETAILS}\n ${issue} \n ${workflowYamlContent} \n${PR_INSTRUCTIONS} \n'Issue URL: ${issueUrl}`
     })
     const details = await this.client.chat.completions.create({
       model: Models.GTP_4_TURBO_2024_04_09,

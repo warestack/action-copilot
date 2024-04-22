@@ -97,7 +97,8 @@ export async function run(): Promise<void> {
 
           if (issueUrl) {
             const prDetails = await openaiClient.generatePrDetails(
-              issueDetails.description
+              issueDetails.description,
+              issueUrl
             )
             // await git.clone(
             //   'dkargatzis',
