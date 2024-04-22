@@ -51075,7 +51075,7 @@ class GitClient {
     async patchCommitAndPush(patchContent, commitMessage, newBranchName) {
         try {
             // Change to the repository directory if not already there
-            process.chdir('tech_entity_recognition');
+            process.chdir(process.env.GITHUB_WORKSPACE || '');
             // Decode URL encoded characters
             const patchCon = `--- a/.github/workflows/setup_and_test.yaml
 +++ b/.github/workflows/setup_and_test.yaml
@@ -51105,11 +51105,10 @@ class GitClient {
             const patchFile = 'temp.patch';
             // Write the patch content to a file
             fs.writeFileSync(patchFile, `${patchCon.trim()}\n`, 'utf-8');
-            const data = fs.readFileSync(patchFile, 'utf8');
-            console.log(data);
             // Apply the patch
             // await this.git.applyPatch(patchFilePath)
             // await this.git.applyPatch(patchFile)
+            await this.git.checkoutBranch(newBranchName, 'origin');
             (0, child_process_1.exec)(`git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`, (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Error: ${error.message}`);
@@ -51122,9 +51121,9 @@ class GitClient {
                 console.log(`stdout: ${stdout}`);
                 console.log('Patch applied successfully.');
             });
-            await this.git.add('.');
+            // await this.git.add('.')
             await this.git.commit(commitMessage);
-            await this.git.push('origin', `refs/heads/${newBranchName}`);
+            await this.git.push('origin', newBranchName);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -51673,8 +51672,8 @@ async function run() {
         const fixes = [];
         let issueUrl;
         let prUrl;
-        const logUrl = await githubClient.getWorkflowRunLogsUrl('dkargatzis', 'tech_entity_recognition', Number(runId));
-        const jobs = await githubClient.getWorkflowRunJobs('dkargatzis', 'tech_entity_recognition', Number(runId));
+        const logUrl = await githubClient.getWorkflowRunLogsUrl(repo.owner, repo.repo, parseInt(runId, 10));
+        const jobs = await githubClient.getWorkflowRunJobs(repo.owner, repo.repo, parseInt(runId, 10));
         const logEntries = await (0, log_handler_1.downloadAndProcessLogsArchive)(logUrl);
         for (let i = 0; i < jobs.length; i++) {
             // const combinedErrors = extractErrors(rawLogs[i]).join('\n')
@@ -51693,7 +51692,7 @@ async function run() {
                 if (logEntry) {
                     const errorHighlights = await openaiClient.analyzeLogs((0, log_handler_1.removeTimestamps)(logEntry.content));
                     const issueDetails = await openaiClient.generateIssueDetails(errorHighlights);
-                    issueUrl = await githubClient.createIssue('dkargatzis', 'tech_entity_recognition', issueDetails.title, issueDetails.description);
+                    issueUrl = await githubClient.createIssue(repo.owner, repo.repo, issueDetails.title, issueDetails.description);
                     if (issueUrl) {
                         const prDetails = await openaiClient.generatePrDetails(issueDetails.description);
                         // await git.clone(
@@ -51704,7 +51703,7 @@ async function run() {
                         await git.patchCommitAndPush(
                         // 'tech_entity_recognition',
                         prDetails.patch, prDetails.commit, prDetails.branch);
-                        prUrl = await githubClient.createPullRequest('dkargatzis', 'tech_entity_recognition', prDetails.branch, 'tech_entity_recognition', prDetails.title, prDetails.description);
+                        prUrl = await githubClient.createPullRequest(repo.owner, repo.repo, prDetails.branch, 'main', prDetails.title, prDetails.description);
                     }
                 }
                 core.setOutput('issue-url', issueUrl);

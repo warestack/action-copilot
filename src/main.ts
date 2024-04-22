@@ -57,12 +57,12 @@ export async function run(): Promise<void> {
     const logUrl = await githubClient.getWorkflowRunLogsUrl(
       repo.owner,
       repo.repo,
-      Number(runId)
+      parseInt(runId, 10)
     )
     const jobs = await githubClient.getWorkflowRunJobs(
       repo.owner,
       repo.repo,
-      Number(runId)
+      parseInt(runId, 10)
     )
     const logEntries: LogEntry[] = await downloadAndProcessLogsArchive(logUrl)
 
@@ -89,8 +89,8 @@ export async function run(): Promise<void> {
             await openaiClient.generateIssueDetails(errorHighlights)
 
           issueUrl = await githubClient.createIssue(
-            'dkargatzis',
-            'tech_entity_recognition',
+            repo.owner,
+            repo.repo,
             issueDetails.title,
             issueDetails.description
           )
@@ -111,10 +111,10 @@ export async function run(): Promise<void> {
               prDetails.branch
             )
             prUrl = await githubClient.createPullRequest(
-              'dkargatzis',
-              'tech_entity_recognition',
+              repo.owner,
+              repo.repo,
               prDetails.branch,
-              'tech_entity_recognition',
+              'main',
               prDetails.title,
               prDetails.description
             )
