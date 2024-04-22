@@ -94,11 +94,10 @@ export class GitClient {
       const patchFile = 'temp.patch'
       // Write the patch content to a file
       fs.writeFileSync(patchFile, `${patchCon.trim()}\n`, 'utf-8')
-      const data = fs.readFileSync(patchFile, 'utf8')
-      console.log(data)
       // Apply the patch
       // await this.git.applyPatch(patchFilePath)
       // await this.git.applyPatch(patchFile)
+      await this.git.checkoutBranch(newBranchName, 'origin')
       exec(
         `git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`,
         (error, stdout, stderr) => {
@@ -115,9 +114,9 @@ export class GitClient {
         }
       )
 
-      await this.git.add('.')
+      // await this.git.add('.')
       await this.git.commit(commitMessage)
-      await this.git.push('origin', `refs/heads/${newBranchName}`)
+      await this.git.push('origin', newBranchName)
     } catch (error) {
       if (error instanceof Error) {
         core.error(`Error patching, committing and pushing: ${error.message}`)
