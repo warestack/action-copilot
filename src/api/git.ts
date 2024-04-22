@@ -2,11 +2,12 @@ import * as core from '@actions/core'
 import * as fs from 'fs'
 import { GitHubApiClient } from '../api/github'
 import { simpleGit } from 'simple-git'
-import { parsePatch, ParsedDiff } from 'diff'
 import { exec } from 'child_process'
+import { promisify } from 'util'
 
 export class GitClient {
   private git
+  execAsync = promisify(exec)
 
   constructor(token: string) {
     this.git = simpleGit({
@@ -96,30 +97,19 @@ export class GitClient {
       // Apply the patch
       // await this.git.applyPatch(patchFilePath)
       // await this.git.applyPatch(patchFile)
-      exec(
+      await this.execAsync(
         `git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`
       )
-      exec('git fetch --all')
-      core.debug(`List of remotes: ${exec('git remote -v')}`)
-      exec(`git checkout -b ${newBranchName}`)
-      exec(
-        `git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`,
-        (error, stdout, stderr) => {
-          if (error) {
-            console.error(`Error: ${error.message}`)
-            return
-          }
-          if (stderr) {
-            console.error(`stderr: ${stderr}`)
-            return
-          }
-          console.log(`stdout: ${stdout}`)
-          console.log('Patch applied successfully.')
-        }
+      await this.execAsync('git fetch --all')
+      await this.execAsync(`git checkout -b ${newBranchName}`)
+      const { stderr } = await this.execAsync(
+        `git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`
       )
+      if (stderr)
+        throw new Error(`Patch application reported errors: ${stderr}`)
 
-      exec(`git commit -am ${commitMessage}`)
-      exec(`git push -u origin ${newBranchName}`)
+      await this.execAsync(`git commit -am 'Fix incorrect database URL'`)
+      await this.execAsync(`git push -u origin ${newBranchName}`)
     } catch (error) {
       if (error instanceof Error) {
         core.error(`Error patching, committing and pushing: ${error.message}`)

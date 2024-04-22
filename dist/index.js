@@ -51029,8 +51029,10 @@ const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
 const simple_git_1 = __nccwpck_require__(9103);
 const child_process_1 = __nccwpck_require__(2081);
+const util_1 = __nccwpck_require__(3837);
 class GitClient {
     git;
+    execAsync = (0, util_1.promisify)(child_process_1.exec);
     constructor(token) {
         this.git = (0, simple_git_1.simpleGit)({
             baseDir: process.cwd(),
@@ -51107,24 +51109,14 @@ class GitClient {
             // Apply the patch
             // await this.git.applyPatch(patchFilePath)
             // await this.git.applyPatch(patchFile)
-            (0, child_process_1.exec)(`git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`);
-            (0, child_process_1.exec)('git fetch --all');
-            core.debug(`List of remotes: ${(0, child_process_1.exec)('git remote -v')}`);
-            (0, child_process_1.exec)(`git checkout -b ${newBranchName}`);
-            (0, child_process_1.exec)(`git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Error: ${error.message}`);
-                    return;
-                }
-                if (stderr) {
-                    console.error(`stderr: ${stderr}`);
-                    return;
-                }
-                console.log(`stdout: ${stdout}`);
-                console.log('Patch applied successfully.');
-            });
-            (0, child_process_1.exec)(`git commit -am ${commitMessage}`);
-            (0, child_process_1.exec)(`git push -u origin ${newBranchName}`);
+            await this.execAsync(`git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`);
+            await this.execAsync('git fetch --all');
+            await this.execAsync(`git checkout -b ${newBranchName}`);
+            const { stderr } = await this.execAsync(`git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`);
+            if (stderr)
+                throw new Error(`Patch application reported errors: ${stderr}`);
+            await this.execAsync(`git commit -am 'Fix incorrect database URL'`);
+            await this.execAsync(`git push -u origin ${newBranchName}`);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -51701,9 +51693,7 @@ async function run() {
                         //   'tech_entity_recognition',
                         //   'feature/env-and-pipelines-config'
                         // )
-                        await git.patchCommitAndPush(
-                        // 'tech_entity_recognition',
-                        prDetails.patch, prDetails.commit, prDetails.branch);
+                        await git.patchCommitAndPush(prDetails.patch, prDetails.commit, prDetails.branch);
                         prUrl = await githubClient.createPullRequest(repo.owner, repo.repo, prDetails.branch, 'main', prDetails.title, prDetails.description);
                     }
                 }

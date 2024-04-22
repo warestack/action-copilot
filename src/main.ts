@@ -105,7 +105,6 @@ export async function run(): Promise<void> {
             //   'feature/env-and-pipelines-config'
             // )
             await git.patchCommitAndPush(
-              // 'tech_entity_recognition',
               prDetails.patch,
               prDetails.commit,
               prDetails.branch
