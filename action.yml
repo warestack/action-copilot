@@ -2,7 +2,7 @@ name: 'Warestack Workflow Copilot'
 description:
   'Assists in automating workflow processes by providing AI-driven insights and
   automations.'
-author: 'Dimitris Kargatzis <dimitris.kargatzis@warestacck.com>'
+author: 'Dimitris Kargatzis <dimitris.kargatzis@warestack.com>'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
