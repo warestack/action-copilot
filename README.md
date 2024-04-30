@@ -1,229 +1,96 @@
-# Create a GitHub Action Using TypeScript
+# Warestack Workflow Copilot Action
 
-[![GitHub Super-Linter](https://github.com/actions/typescript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/actions/typescript-action/actions/workflows/ci.yml/badge.svg)
-[![Check dist/](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml)
-[![CodeQL](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml)
+[![GitHub Super-Linter](https://github.com/actions/action-copilot/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
+![CI](https://github.com/actions/action-copilot/actions/workflows/ci.yml/badge.svg)
+[![Check dist/](https://github.com/actions/action-copilot/actions/workflows/check-dist.yml/badge.svg)](https://github.com/actions/action-copilot/actions/workflows/check-dist.yml)
+[![CodeQL](https://github.com/actions/action-copilot/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/action-copilot/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-Use this template to bootstrap the creation of a TypeScript action. :rocket:
+Welcome to the Warestack Workflow Copilot Action repository! This action is designed to automatically analyze logs from your GitHub workflows, identify errors, and suggest fixes through auto-generated pull requests, enhancing the efficiency of your CI/CD pipeline.
 
-This template includes compilation support, tests, a validation workflow,
-publishing, and versioning guidance.
+## How It Works
 
-If you are new, there's also a simpler introduction in the
-[Hello world JavaScript action repository](https://github.com/actions/hello-world-javascript-action).
+1. **Trigger**: Activates upon the completion of specified workflows.
+2. **Log Retrieval**: Fetches logs from workflow runs using GitHub API.
+3. **Error Analysis**: Utilizes OpenAI to analyze logs and highlight errors.
+4. **Issue Management**: Creates GitHub issues for each identified error with detailed descriptions.
+5. **Automated Fixes**: Generates patch suggestions and applies them to new branches.
+6. **Pull Requests**: Automatically creates pull requests linking to the issues, streamlining the review and merge process.
 
-## Create Your Own Action
+## Features
 
-To create your own action, you can use this repository as a template! Just
-follow the below instructions:
+- **Automated Log Analysis**: Identifies errors in workflow logs.
+- **Issue Creation**: Automatically generates and creates issue tickets on GitHub.
+- **Code Patch Generation**: Proposes code fixes and prepares patches.
+- **Branch and PR Automation**: Handles branching and pull requests for code fixes.
 
-1. Click the **Use this template** button at the top of the repository
-1. Select **Create a new repository**
-1. Select an owner and name for your new repository
-1. Click **Create repository**
-1. Clone your new repository
+## Setup Instructions
 
-> [!IMPORTANT]
->
-> Make sure to remove or update the [`CODEOWNERS`](./CODEOWNERS) file! For
-> details on how to use this file, see
-> [About code owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).
+### Example Workflow File
 
-## Initial Setup
-
-After you've cloned the repository to your local machine or codespace, you'll
-need to perform some initial setup steps before you can develop your action.
-
-> [!NOTE]
->
-> You'll need to have a reasonably modern version of
-> [Node.js](https://nodejs.org) handy (20.x or later should work!). If you are
-> using a version manager like [`nodenv`](https://github.com/nodenv/nodenv) or
-> [`nvm`](https://github.com/nvm-sh/nvm), this template has a `.node-version`
-> file at the root of the repository that will be used to automatically switch
-> to the correct version when you `cd` into the repository. Additionally, this
-> `.node-version` file is used by GitHub Actions in any `actions/setup-node`
-> actions.
-
-1. :hammer_and_wrench: Install the dependencies
-
-   ```bash
-   npm install
-   ```
-
-1. :building_construction: Package the TypeScript for distribution
-
-   ```bash
-   npm run bundle
-   ```
-
-1. :white_check_mark: Run the tests
-
-   ```bash
-   $ npm test
-
-   PASS  ./index.test.js
-     ✓ throws invalid number (3ms)
-     ✓ wait 500 ms (504ms)
-     ✓ test runs (95ms)
-
-   ...
-   ```
-
-## Update the Action Metadata
-
-The [`action.yml`](action.yml) file defines metadata about your action, such as
-input(s) and output(s). For details about this file, see
-[Metadata syntax for GitHub Actions](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions).
-
-When you copy this repository, update `action.yml` with the name, description,
-inputs, and outputs for your action.
-
-## Update the Action Code
-
-The [`src/`](./src/) directory is the heart of your action! This contains the
-source code that will be run when your action is invoked. You can replace the
-contents of this directory with your own code.
-
-There are a few things to keep in mind when writing your action code:
-
-- Most GitHub Actions toolkit and CI/CD operations are processed asynchronously.
-  In `main.ts`, you will see that the action is run in an `async` function.
-
-  ```javascript
-  import * as core from '@actions/core'
-  //...
-
-  async function run() {
-    try {
-      //...
-    } catch (error) {
-      core.setFailed(error.message)
-    }
-  }
-  ```
-
-  For more information about the GitHub Actions toolkit, see the
-  [documentation](https://github.com/actions/toolkit/blob/master/README.md).
-
-So, what are you waiting for? Go ahead and start customizing your action!
-
-1. Create a new branch
-
-   ```bash
-   git checkout -b releases/v1
-   ```
-
-1. Replace the contents of `src/` with your action code
-1. Add tests to `__tests__/` for your source code
-1. Format, test, and build the action
-
-   ```bash
-   npm run all
-   ```
-
-   > This step is important! It will run [`ncc`](https://github.com/vercel/ncc)
-   > to build the final JavaScript action code with all dependencies included.
-   > If you do not run this step, your action will not work correctly when it is
-   > used in a workflow. This step also includes the `--license` option for
-   > `ncc`, which will create a license file for all of the production node
-   > modules used in your project.
-
-1. Commit your changes
-
-   ```bash
-   git add .
-   git commit -m "My first action is ready!"
-   ```
-
-1. Push them to your repository
-
-   ```bash
-   git push -u origin releases/v1
-   ```
-
-1. Create a pull request and get feedback on your action
-1. Merge the pull request into the `main` branch
-
-Your action is now published! :rocket:
-
-For information about versioning your action, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-in the GitHub Actions toolkit.
-
-## Validate the Action
-
-You can now validate the action by referencing it in a workflow file. For
-example, [`ci.yml`](./.github/workflows/ci.yml) demonstrates how to reference an
-action in the same repository.
+To use this action in your projects, add the following workflow to your `.github/workflows` folder:
 
 ```yaml
-steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v4
+name: Warestack Copilot
 
-  - name: Test Local Action
-    id: test-action
-    uses: ./
-    with:
-      milliseconds: 1000
+on:
+  workflow_run:
+    workflows: ['Main CI'] # Name of the primary workflow
+    types:
+      - completed
+      
+jobs:
+  copilot-job:
+    runs-on: ubuntu-latest
+    name: Warestack Workflow Copilot
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_GITHUB_TOKEN }} # Token with workflows scope
 
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
+      - name: Trigger Copilot Action
+        uses: warestack/action-copilot@main
+        with:
+          github-token: ${{ secrets.PAT_GITHUB_TOKEN }}
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          workflow-run-id: ${{ github.event.workflow_run.id }} # ID of the completed workflow run
 ```
 
-For example workflow runs, check out the
-[Actions tab](https://github.com/actions/typescript-action/actions)! :rocket:
+### Inputs
 
-## Usage
+- `github-token`: Token for the GitHub API. Must have appropriate permissions to fetch logs, create branches, issues, 
+  and pull requests.
+- `openai-api-key`: Key for OpenAI API to perform automated log analysis and patch generation.
 
-After testing, you can create version tag(s) that developers can use to
-reference different stable versions of your action. For more information, see
-[Versioning](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-in the GitHub Actions toolkit.
+### Permissions
 
-To include the action in a workflow in another repository, you can use the
-`uses` syntax with the `@` symbol to reference a specific branch, tag, or commit
-hash.
+Ensure the GITHUB_TOKEN or the personal access token used has the following permissions:
 
-```yaml
-steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v4
+- `repo` (all): For operations on the repository.
+- `actions`: For accessing workflow runs.
+- `workflows`: For modifying workflow files.
 
-  - name: Test Local Action
-    id: test-action
-    uses: actions/typescript-action@v1 # Commit with the `v1` tag
-    with:
-      milliseconds: 1000
+### Security
 
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
-```
+Always store your `PAT_GITHUB_TOKEN` and `OPENAI_API_KEY` as secrets. Never hard code them into your workflow files.
 
-## Publishing a New Release
+## Contributing
 
-This project includes a helper script, [`script/release`](./script/release)
-designed to streamline the process of tagging and pushing new releases for
-GitHub Actions.
+We believe in the power of the community. Any contributions you make are **greatly appreciated**. Check our
+[Contributing Guide](./CONTRIBUTING.md) for more information.
 
-GitHub Actions allows users to select a specific version of the action to use,
-based on release tags. This script simplifies this process by performing the
-following steps:
+## Resources
 
-1. **Retrieving the latest release tag:** The script starts by fetching the most
-   recent release tag by looking at the local data available in your repository.
-1. **Prompting for a new release tag:** The user is then prompted to enter a new
-   release tag. To assist with this, the script displays the latest release tag
-   and provides a regular expression to validate the format of the new tag.
-1. **Tagging the new release:** Once a valid new tag is entered, the script tags
-   the new release.
-1. **Pushing the new tag to the remote:** Finally, the script pushes the new tag
-   to the remote repository. From here, you will need to create a new release in
-   GitHub and users can easily reference the new tag in their workflows.
+- [Warestack Official Documentation](https://www.warestack.com/documentation)
+- [GitHub API Documentation](https://docs.github.com/en/rest)
+- [OpenAI API Documentation](https://beta.openai.com/docs/)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+---
+
+❤️ Made with passion by the Warestack Team. Join our [Community Discord](https://discord.gg/pqg5sxhx6Y) to discuss and
+contribute!

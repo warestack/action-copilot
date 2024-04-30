@@ -1,16 +1,16 @@
 {
-  "name": "typescript-action",
-  "description": "GitHub Actions TypeScript template",
+  "name": "action-copilot",
+  "description": "GitHub Action for analyzing workflow logs, identifying errors, and suggesting fixes",
   "version": "0.0.0",
-  "author": "",
+  "author": "Dimitris Kargatzis <dimitris.kargatzis@warestack.com>",
   "private": true,
-  "homepage": "https://github.com/actions/typescript-action",
+  "homepage": "https://github.com/warestack/action-copilot",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/warestack/action-copilot.git"
   },
   "bugs": {
-    "url": "https://github.com/actions/typescript-action/issues"
+    "url": "https://github.com/warestack/action-copilot/issues"
   },
   "keywords": [
     "actions",

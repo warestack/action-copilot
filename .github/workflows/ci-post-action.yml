@@ -7,7 +7,7 @@ on:
       - completed
 
 jobs:
-  process-logs:
+  copilot-job:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,11 +23,3 @@ jobs:
           github-token: ${{ secrets.PAT_GITHUB_TOKEN }}
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           workflow-run-id: ${{ github.event.workflow_run.id }} # ID of the completed workflow run
-
-      # Print URL of the created GitHub Issue if any issue is created
-      - name: Print Issue URL
-        run: echo "${{ steps.copilot.outputs.issue-url }}"
-
-      # Print URL of the created GitHub PR if any PR is created
-      - name: Print PR URL
-        run: echo "${{ steps.copilot.outputs.pr-url }}"
