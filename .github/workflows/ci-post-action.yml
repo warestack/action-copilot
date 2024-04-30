@@ -1,4 +1,4 @@
-name: Process Workflow Logs
+name: Warestack Copilot
 
 on:
   workflow_run:
