@@ -6,29 +6,38 @@
 [![CodeQL](https://github.com/actions/action-copilot/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/action-copilot/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-Welcome to the Warestack Workflow Copilot Action repository! This action is designed to automatically analyze logs from your GitHub workflows, identify errors, and suggest fixes through auto-generated pull requests, enhancing the efficiency of your CI/CD pipeline.
+Welcome to the Warestack Workflow Copilot Action repository! This action is
+designed to automatically analyze logs from your GitHub workflows, identify
+errors, and suggest fixes through auto-generated pull requests, enhancing the
+efficiency of your CI/CD pipeline.
 
 ## How It Works
 
 1. **Trigger**: Activates upon the completion of specified workflows.
 2. **Log Retrieval**: Fetches logs from workflow runs using GitHub API.
 3. **Error Analysis**: Utilizes OpenAI to analyze logs and highlight errors.
-4. **Issue Management**: Creates GitHub issues for each identified error with detailed descriptions.
-5. **Automated Fixes**: Generates patch suggestions and applies them to new branches.
-6. **Pull Requests**: Automatically creates pull requests linking to the issues, streamlining the review and merge process.
+4. **Issue Management**: Creates GitHub issues for each identified error with
+   detailed descriptions.
+5. **Automated Fixes**: Generates patch suggestions and applies them to new
+   branches.
+6. **Pull Requests**: Automatically creates pull requests linking to the issues,
+   streamlining the review and merge process.
 
 ## Features
 
 - **Automated Log Analysis**: Identifies errors in workflow logs.
-- **Issue Creation**: Automatically generates and creates issue tickets on GitHub.
+- **Issue Creation**: Automatically generates and creates issue tickets on
+  GitHub.
 - **Code Patch Generation**: Proposes code fixes and prepares patches.
-- **Branch and PR Automation**: Handles branching and pull requests for code fixes.
+- **Branch and PR Automation**: Handles branching and pull requests for code
+  fixes.
 
 ## Setup Instructions
 
 ### Example Workflow File
 
-To use this action in your projects, add the following workflow to your `.github/workflows` folder:
+To use this action in your projects, add the following workflow to your
+`.github/workflows` folder:
 
 ```yaml
 name: Warestack Copilot
@@ -38,7 +47,7 @@ on:
     workflows: ['Main CI'] # Name of the primary workflow
     types:
       - completed
-      
+
 jobs:
   copilot-job:
     runs-on: ubuntu-latest
@@ -59,13 +68,15 @@ jobs:
 
 ### Inputs
 
-- `github-token`: Token for the GitHub API. Must have appropriate permissions to fetch logs, create branches, issues, 
-  and pull requests.
-- `openai-api-key`: Key for OpenAI API to perform automated log analysis and patch generation.
+- `github-token`: Token for the GitHub API. Must have appropriate permissions to
+  fetch logs, create branches, issues, and pull requests.
+- `openai-api-key`: Key for OpenAI API to perform automated log analysis and
+  patch generation.
 
 ### Permissions
 
-Ensure the GITHUB_TOKEN or the personal access token used has the following permissions:
+Ensure the GITHUB_TOKEN or the personal access token used has the following
+permissions:
 
 - `repo` (all): For operations on the repository.
 - `actions`: For accessing workflow runs.
@@ -73,12 +84,14 @@ Ensure the GITHUB_TOKEN or the personal access token used has the following perm
 
 ### Security
 
-Always store your `PAT_GITHUB_TOKEN` and `OPENAI_API_KEY` as secrets. Never hard code them into your workflow files.
+Always store your `PAT_GITHUB_TOKEN` and `OPENAI_API_KEY` as secrets. Never hard
+code them into your workflow files.
 
 ## Contributing
 
-We believe in the power of the community. Any contributions you make are **greatly appreciated**. Check our
-[Contributing Guide](./CONTRIBUTING.md) for more information.
+We believe in the power of the community. Any contributions you make are
+**greatly appreciated**. Check our [Contributing Guide](./CONTRIBUTING.md) for
+more information.
 
 ## Resources
 
@@ -88,9 +101,10 @@ We believe in the power of the community. Any contributions you make are **great
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE)
+file for details.
 
 ---
 
-❤️ Made with passion by the Warestack Team. Join our [Community Discord](https://discord.gg/pqg5sxhx6Y) to discuss and
-contribute!
+❤️ Made with passion by the Warestack Team. Join our
+[Community Discord](https://discord.gg/pqg5sxhx6Y) to discuss and contribute!
