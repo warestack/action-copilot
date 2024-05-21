@@ -994,259 +994,6 @@ exports.toCommandProperties = toCommandProperties;
 
 /***/ }),
 
-/***/ 4087:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Context = void 0;
-const fs_1 = __nccwpck_require__(7147);
-const os_1 = __nccwpck_require__(2037);
-class Context {
-    /**
-     * Hydrate the context from the environment
-     */
-    constructor() {
-        var _a, _b, _c;
-        this.payload = {};
-        if (process.env.GITHUB_EVENT_PATH) {
-            if ((0, fs_1.existsSync)(process.env.GITHUB_EVENT_PATH)) {
-                this.payload = JSON.parse((0, fs_1.readFileSync)(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
-            }
-            else {
-                const path = process.env.GITHUB_EVENT_PATH;
-                process.stdout.write(`GITHUB_EVENT_PATH ${path} does not exist${os_1.EOL}`);
-            }
-        }
-        this.eventName = process.env.GITHUB_EVENT_NAME;
-        this.sha = process.env.GITHUB_SHA;
-        this.ref = process.env.GITHUB_REF;
-        this.workflow = process.env.GITHUB_WORKFLOW;
-        this.action = process.env.GITHUB_ACTION;
-        this.actor = process.env.GITHUB_ACTOR;
-        this.job = process.env.GITHUB_JOB;
-        this.runNumber = parseInt(process.env.GITHUB_RUN_NUMBER, 10);
-        this.runId = parseInt(process.env.GITHUB_RUN_ID, 10);
-        this.apiUrl = (_a = process.env.GITHUB_API_URL) !== null && _a !== void 0 ? _a : `https://api.github.com`;
-        this.serverUrl = (_b = process.env.GITHUB_SERVER_URL) !== null && _b !== void 0 ? _b : `https://github.com`;
-        this.graphqlUrl =
-            (_c = process.env.GITHUB_GRAPHQL_URL) !== null && _c !== void 0 ? _c : `https://api.github.com/graphql`;
-    }
-    get issue() {
-        const payload = this.payload;
-        return Object.assign(Object.assign({}, this.repo), { number: (payload.issue || payload.pull_request || payload).number });
-    }
-    get repo() {
-        if (process.env.GITHUB_REPOSITORY) {
-            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-            return { owner, repo };
-        }
-        if (this.payload.repository) {
-            return {
-                owner: this.payload.repository.owner.login,
-                repo: this.payload.repository.name
-            };
-        }
-        throw new Error("context.repo requires a GITHUB_REPOSITORY environment variable like 'owner/repo'");
-    }
-}
-exports.Context = Context;
-//# sourceMappingURL=context.js.map
-
-/***/ }),
-
-/***/ 5438:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getOctokit = exports.context = void 0;
-const Context = __importStar(__nccwpck_require__(4087));
-const utils_1 = __nccwpck_require__(3030);
-exports.context = new Context.Context();
-/**
- * Returns a hydrated octokit ready to use for GitHub Actions
- *
- * @param     token    the repo PAT or GITHUB_TOKEN
- * @param     options  other options to set
- */
-function getOctokit(token, options, ...additionalPlugins) {
-    const GitHubWithPlugins = utils_1.GitHub.plugin(...additionalPlugins);
-    return new GitHubWithPlugins((0, utils_1.getOctokitOptions)(token, options));
-}
-exports.getOctokit = getOctokit;
-//# sourceMappingURL=github.js.map
-
-/***/ }),
-
-/***/ 7914:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getApiBaseUrl = exports.getProxyFetch = exports.getProxyAgentDispatcher = exports.getProxyAgent = exports.getAuthString = void 0;
-const httpClient = __importStar(__nccwpck_require__(6255));
-const undici_1 = __nccwpck_require__(1773);
-function getAuthString(token, options) {
-    if (!token && !options.auth) {
-        throw new Error('Parameter token or opts.auth is required');
-    }
-    else if (token && options.auth) {
-        throw new Error('Parameters token and opts.auth may not both be specified');
-    }
-    return typeof options.auth === 'string' ? options.auth : `token ${token}`;
-}
-exports.getAuthString = getAuthString;
-function getProxyAgent(destinationUrl) {
-    const hc = new httpClient.HttpClient();
-    return hc.getAgent(destinationUrl);
-}
-exports.getProxyAgent = getProxyAgent;
-function getProxyAgentDispatcher(destinationUrl) {
-    const hc = new httpClient.HttpClient();
-    return hc.getAgentDispatcher(destinationUrl);
-}
-exports.getProxyAgentDispatcher = getProxyAgentDispatcher;
-function getProxyFetch(destinationUrl) {
-    const httpDispatcher = getProxyAgentDispatcher(destinationUrl);
-    const proxyFetch = (url, opts) => __awaiter(this, void 0, void 0, function* () {
-        return (0, undici_1.fetch)(url, Object.assign(Object.assign({}, opts), { dispatcher: httpDispatcher }));
-    });
-    return proxyFetch;
-}
-exports.getProxyFetch = getProxyFetch;
-function getApiBaseUrl() {
-    return process.env['GITHUB_API_URL'] || 'https://api.github.com';
-}
-exports.getApiBaseUrl = getApiBaseUrl;
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
-/***/ 3030:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getOctokitOptions = exports.GitHub = exports.defaults = exports.context = void 0;
-const Context = __importStar(__nccwpck_require__(4087));
-const Utils = __importStar(__nccwpck_require__(7914));
-// octokit + plugins
-const core_1 = __nccwpck_require__(6762);
-const plugin_rest_endpoint_methods_1 = __nccwpck_require__(3044);
-const plugin_paginate_rest_1 = __nccwpck_require__(4193);
-exports.context = new Context.Context();
-const baseUrl = Utils.getApiBaseUrl();
-exports.defaults = {
-    baseUrl,
-    request: {
-        agent: Utils.getProxyAgent(baseUrl),
-        fetch: Utils.getProxyFetch(baseUrl)
-    }
-};
-exports.GitHub = core_1.Octokit.plugin(plugin_rest_endpoint_methods_1.restEndpointMethods, plugin_paginate_rest_1.paginateRest).defaults(exports.defaults);
-/**
- * Convience function to correctly format Octokit Options to pass into the constructor.
- *
- * @param     token    the repo PAT or GITHUB_TOKEN
- * @param     options  other options to set
- */
-function getOctokitOptions(token, options) {
-    const opts = Object.assign({}, options || {}); // Shallow clone - don't mutate the object provided by the caller
-    // Auth
-    const auth = Utils.getAuthString(token, opts);
-    if (auth) {
-        opts.auth = auth;
-    }
-    return opts;
-}
-exports.getOctokitOptions = getOctokitOptions;
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
 /***/ 5526:
 /***/ (function(__unused_webpack_module, exports) {
 
@@ -51025,11 +50772,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GitClient = void 0;
-const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
-const simple_git_1 = __nccwpck_require__(9103);
 const child_process_1 = __nccwpck_require__(2081);
 const util_1 = __nccwpck_require__(3837);
+const simple_git_1 = __nccwpck_require__(9103);
 class GitClient {
     git;
     execAsync = (0, util_1.promisify)(child_process_1.exec);
@@ -51046,124 +50792,35 @@ class GitClient {
         this.git.addConfig('http.extraHeader', `Authorization: token ${token}`);
     }
     /**
-     * Clone a repository from GitHub using the provided token, repository owner, repository name, and branch.
+     * Asynchronously applies a patch, commits the changes, and pushes them to the remote repository.
      *
-     * @param {string} repoOwner - The owner of the repository.
-     * @param {string} repoName - The name of the repository.
-     * @param {string} branch - The branch to clone.
-     * @return {Promise<void>} - A promise that resolves when the repository has been cloned successfully, or rejects with an error if the cloning process encounters an error.
-     * @throws {Error} - If an error occurs during the cloning process.
+     * @param {string} patchContent - The content of the patch to apply.
+     * @param {string} commitMessage - The commit message to use for the changes.
+     * @param {string} newBranchName - The name of the new branch to create and checkout.
+     * @return {Promise<void>} - A Promise that resolves when the patch, commit, and push process completes successfully.
+     * @throws {Error} - If there is an error patching, committing, or pushing the changes.
      */
-    async clone(repoOwner, repoName, branch) {
-        const repoUrl = `https://github.com/${repoOwner}/${repoName}.git`;
-        try {
-            await this.git.clone(repoUrl, '.', [
-                '--depth',
-                '1',
-                '-b',
-                branch,
-                '--single-branch'
-            ]);
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                core.error(`Error cloning repository: ${error.message}`);
-                throw error;
-            }
-            throw new Error('Error cloning repository');
-        }
-    }
     async patchCommitAndPush(patchContent, commitMessage, newBranchName) {
         try {
             // Change to the repository directory if not already there
             process.chdir(process.env.GITHUB_WORKSPACE || '');
-            // Decode URL encoded characters
-            const patchCon = `--- a/.github/workflows/setup_and_test.yaml
-+++ b/.github/workflows/setup_and_test.yaml
-@@ -28,7 +28,7 @@ jobs:
-           --name mongo_container
-     env:
-       JOB_STATUS: succeeded
--      DATABASE_URL: mongodb://locahost:27017
-+      DATABASE_URL: mongodb://localhost:27017
-       DATABASE_NAME: bsc_computing_project`;
-            // let decodedPatch = decodeURIComponent(patchContent)
-            // // Remove markdown backticks
-            // decodedPatch = decodedPatch.replace(/```diff|```/g, '').trim()
-            // // Convert to actual JavaScript string with proper new lines if necessary
-            // patchContent = patchContent.replace(/%0A/g, '')
-            // const patch: ParsedDiff = parsePatch(patchContent)[0]
-            // const serializedPatch = [
-            //   `--- ${patch.oldFileName}`,
-            //   `+++ ${patch.newFileName}`,
-            //   ...patch.hunks.map(hunk => {
-            //     return [
-            //       `@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@`,
-            //       ...hunk.lines
-            //     ].join('\n')
-            //   })
-            // ].join('\n')
             const patchFile = 'temp.patch';
             // Write the patch content to a file
-            fs.writeFileSync(patchFile, `${patchCon.trim()}\n`, 'utf-8');
-            // Apply the patch
-            // await this.git.applyPatch(patchFilePath)
-            // await this.git.applyPatch(patchFile)
-            // await this.execAsync(
-            //   `git remote add origin https://github.com/warestack/war_tech_entity_recognition.git`
-            // )
-            // await this.execAsync('git fetch --all')
+            fs.writeFileSync(patchFile, `${patchContent.trim()}\n`, 'utf-8');
+            // Create and checkout the branch with the name proposed by AI
             await this.execAsync(`git checkout -b ${newBranchName}`);
+            // Apply the patch generated by AI
             const { stderr } = await this.execAsync(`git apply --recount --ignore-space-change --ignore-whitespace ${patchFile}`);
-            if (stderr)
+            if (stderr) {
                 throw new Error(`Patch application reported errors: ${stderr}`);
-            await this.execAsync(`git commit -am 'Fix incorrect database URL'`);
+            }
+            await this.execAsync(`git commit -am '${commitMessage}'`);
             await this.execAsync(`git push -u origin ${newBranchName}`);
         }
         catch (error) {
             if (error instanceof Error) {
-                core.error(`Error patching, committing and pushing: ${error.message}`);
-                throw error;
+                throw new Error(`Error patching, committing and pushing: ${error.message}`);
             }
-            throw new Error('Error patching, committing and pushing');
-        }
-    }
-    /**
-     * Applies a patch and creates a pull request with the changes.
-     *
-     * @param {GitHubApiClient} githubClient - The GitHub API client instance.
-     * @param {string} repoOwner - The repository owner.
-     * @param {string} repoName - The repository name.
-     * @param {string} baseBranch - The base branch to create the pull request against.
-     * @param {string} patchContent - The patch content generated by the AI.
-     * @param {string} commitMessage - The commit message for the changes.
-     * @param {string} prTitle - The title of the pull request.
-     * @param {string} prBody - The body of the pull request.
-     * @returns {Promise<string>} The URL of the created pull request.
-     */
-    async createPullRequest(githubClient, repoOwner, repoName, baseBranch, patchContent, commitMessage, prTitle, prBody) {
-        // Assuming the patch is valid and can be applied cleanly
-        try {
-            // Apply the patch
-            // await this.git.raw(['apply', '--whitespace=nowarn', '-'], patchContent)
-            // Add changes to the index
-            await this.git.add('.');
-            // Commit the changes
-            await this.git.commit(commitMessage);
-            // Push changes to a new branch
-            const branchName = `ai-fix-${Date.now()}`;
-            await this.git.push('origin', `HEAD:refs/heads/${branchName}`);
-            // Create a pull request
-            const prUrl = await githubClient.createPullRequest(repoOwner, repoName, baseBranch, branchName, prTitle, prBody);
-            core.info(`Pull request created: ${prUrl}`);
-            return prUrl;
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                core.error(`Failed to create a pull request: ${error.message}`);
-                throw error;
-            }
-            throw new Error('Unknown error occurred while creating a pull request');
         }
     }
 }
@@ -51208,6 +50865,56 @@ class GitHubApiClient {
     client;
     constructor(token) {
         this.client = new rest_1.Octokit({ auth: token });
+    }
+    /**
+     * Fetches all open issues in the repository.
+     * @param {string} owner - The owner of the repository.
+     * @param {string} repo - The repository name.
+     * @returns {Promise<Array<object>>} - A promise that resolves to an array of open issues.
+     */
+    async getOpenIssues(owner, repo) {
+        try {
+            const response = await this.client.issues.listForRepo({
+                owner,
+                repo,
+                state: 'open'
+            });
+            return response.data.map(issue => ({
+                id: issue.id,
+                title: issue.title,
+                body: issue.body || '',
+                html_url: issue.html_url
+            }));
+        }
+        catch (error) {
+            if (error instanceof Error)
+                core.debug(`Error fetching open issues: ${error.message}`);
+            throw new Error('Error fetching open issues');
+        }
+    }
+    /**
+     * Retrieves the workflow file path for a specific workflow run.
+     *
+     * @param {string} repoOwner - The owner of the repository.
+     * @param {string} repoName - The repository name.
+     * @param {number} runId - The ID of the workflow run.
+     * @returns {Promise<string>} - A promise that resolves to the path of the workflow YAML file.
+     */
+    async getWorkflowFilePath(repoOwner, repoName, runId) {
+        try {
+            const response = await this.client.actions.getWorkflowRun({
+                owner: repoOwner,
+                repo: repoName,
+                run_id: runId
+            });
+            core.debug(`Workflow File Path: ${response.data.path}`);
+            return response.data.path;
+        }
+        catch (error) {
+            if (error instanceof Error)
+                core.debug(`Error fetching workflow file path: ${error.message}`);
+            throw new Error('Error fetching workflow file path');
+        }
     }
     /**
      * Retrieves the URL to download an archive of log files for a specific workflow run.
@@ -51264,32 +50971,6 @@ class GitHubApiClient {
             if (error instanceof Error)
                 core.debug(`Error fetching jobs for given workflow run: ${error.message}`);
             throw new Error('Error fetching jobs for given workflow run');
-        }
-    }
-    /**
-     * Retrieves the YAML file content of a workflow at a specific commit.
-     *
-     * @param {string} owner - The owner of the repository.
-     * @param {string} repo - The name of the repository.
-     * @param {string} path - The path to the YAML file.
-     * @param {string} sha - The commit SHA.
-     * @return {Promise<void>} - A promise representing the operation.
-     * @throws {Error} - If there is an error retrieving the file content.
-     */
-    async getWorkflowYAMLAtCommit(owner, repo, path, sha) {
-        try {
-            const response = await this.client.repos.getContent({
-                owner,
-                repo,
-                path,
-                sha
-            });
-            return response.data;
-        }
-        catch (error) {
-            if (error instanceof Error)
-                core.debug(`Error getting file content: ${error.message}`);
-            throw new Error('Error getting file content');
         }
     }
     /**
@@ -51406,18 +51087,6 @@ class OpenAIApiClient {
         });
         return errorAnalysis.choices[0].message.content?.trim() || '';
     }
-    async proposeFixes(issue) {
-        this.messages.push({
-            role: 'user',
-            content: `${constants_1.Queries.IDENTIFY_ERRORS}\n ${issue}`
-        });
-        const fixes = await this.client.chat.completions.create({
-            model: constants_1.Models.GTP_4_TURBO_2024_04_09,
-            messages: this.messages,
-            max_tokens: constants_1.Limits.MAX_TOKENS
-        });
-        return fixes.choices[0].message.content?.trim() || '';
-    }
     async generateIssueDetails(issue) {
         this.messages.push({
             role: 'user',
@@ -51436,10 +51105,10 @@ class OpenAIApiClient {
         core.debug(`Content: ${issueDetails.title}`);
         return issueDetails;
     }
-    async generatePrDetails(issue, issueUrl) {
+    async generatePrDetails(issue, issueUrl, workflowYamlContent) {
         this.messages.push({
             role: 'user',
-            content: `${constants_1.Queries.GENERATE_PR_DETAILS}\n ${issue} \n ${constants_1.workflowYamlContent} \n${constants_1.PR_INSTRUCTIONS} \n'Issue URL: ${issueUrl}`
+            content: `${constants_1.Queries.GENERATE_PR_DETAILS}\n ${issue} \n ${workflowYamlContent} \n${constants_1.PR_INSTRUCTIONS} \n'Issue URL: ${issueUrl}`
         });
         const details = await this.client.chat.completions.create({
             model: constants_1.Models.GTP_4_TURBO_2024_04_09,
@@ -51465,17 +51134,15 @@ exports.OpenAIApiClient = OpenAIApiClient;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.workflowYamlContent = exports.newlineRegex = exports.lineFeedRegex = exports.timestampRegex = exports.errorPatterns = exports.Limits = exports.Models = exports.PR_INSTRUCTIONS = exports.ISSUE_INSTRUCTIONS = exports.Queries = void 0;
+exports.newlineRegex = exports.timestampRegex = exports.errorPatterns = exports.Limits = exports.Models = exports.PR_INSTRUCTIONS = exports.ISSUE_INSTRUCTIONS = exports.Queries = void 0;
 /**
  * The base URL for the API.
  * @constant
  */
 exports.Queries = {
-    EXPLAIN_ERROR: 'Explain the following error extracted from the GitHub workflow logs:\n',
     IDENTIFY_ERRORS: 'Please review the following logs and identify the root cause of the failure. Note that the issue might be related to incorrect configurations, missing or incorrect environment variables, and secrets:\n',
-    PROPOSE_FIXES: 'Propose code fixes for the following error:\n',
     GENERATE_ISSUE_DETAILS: 'Generate the issue details based on the following issue:\n',
-    GENERATE_PR_DETAILS: 'Generate the pull request details based on the following issue and related workflow YAML content:\n'
+    GENERATE_PR_DETAILS: 'Generate the pull request details based on the following issue and related workflow YAML content, but only if a fix can be proposed:\n'
 };
 exports.ISSUE_INSTRUCTIONS = `
 Answer in json using the following schema:
@@ -51490,7 +51157,7 @@ Answer in json using the following schema:
   title: string // Meaningful short title 
   description: string // Well structured with sections and a link to the related issue description in markdown format
   branch: string // Name of the PR branch, use the "hotfix/" prefix and make it clear what the purpose of the PR branch
-  patch: string // Patch content with the proposed fix to be applied with git
+  patch: string // Patch content with the proposed fix to be applied with git. Skip it if the issue is not related with the workflow YAML content
   commit: string // Commit message
 }
 `;
@@ -51502,7 +51169,8 @@ exports.Models = {
     DAVINCI_002: 'davinci-002',
     BABBAGE_002: 'babbage-002',
     GTP_3_5_TURBO_INSTRUCT: 'gpt-3.5-turbo-instruct',
-    GTP_4_TURBO_2024_04_09: 'gpt-4-turbo-2024-04-09'
+    GTP_4_TURBO_2024_04_09: 'gpt-4-turbo-2024-04-09',
+    GTP_4_OMNI: 'gpt-4o'
 };
 /**
  * The base URL for the API.
@@ -51519,79 +51187,7 @@ exports.errorPatterns = [
 ];
 // Regular expression to match ISO 8601 timestamps at the start of each line
 exports.timestampRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z /gm;
-exports.lineFeedRegex = /%0A/g;
 exports.newlineRegex = /\r\n|\n|\r/g;
-exports.workflowYamlContent = `
-# .github/workflows/setup_and_test.yaml
-name: "Setup and Test on Push Events"
-on:
-  push:
-    branches:
-      - "feature/*" # matches every branch containing 'feature/'
-      - "bugfix/*" # matches every branch containing 'bugfix/'
-      - "hotfix/*" # matches every branch containing 'hotfix/'
-      - "!main" # excludes main branch
-  release:
-    types: [created]
-
-jobs:
-  build:
-    name: Setup, Build, and Test
-    runs-on: ubuntu-latest
-    services:
-      mongodb:
-        image: mongo
-        env:
-          MONGO_INITDB_DATABASE: bsc_computing_project
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "echo 'db.runCommand("ping").ok' | mongosh --quiet"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --name mongo_container
-    env:
-      JOB_STATUS: succeeded
-      DATABASE_URL: mongodb://localost:27017
-      DATABASE_NAME: bsc_computing_project
-
-
-    strategy:
-      matrix:
-        # Config the virtual env - Python version 3.11 will be used only.
-        python-version: [ "3.11" ]
-
-    # Add "id-token" with the intended permissions.
-    permissions:
-      contents: "read"
-      id-token: "write"
-
-    steps:
-      # Checkout GitHub branch's config
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      # Set up the Python version
-      - name: Set up the Python version
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          architecture: "x64"
-          cache: 'pip'
-
-      # Install dependencies along with other required packages
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest pytest-cov
-          if [ -f requirements/dev.txt ]; then pip install -r ./requirements/dev.txt; fi
-      
-      # Run test and output results in JUnit format and parts that lack test coverage
-      - name: Run tests
-        run: |
-          pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
-`;
 
 
 /***/ }),
@@ -51627,11 +51223,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-const github = __importStar(__nccwpck_require__(5438));
+const git_1 = __nccwpck_require__(2131);
 const github_1 = __nccwpck_require__(7693);
 const openai_1 = __nccwpck_require__(3174);
+const fuzzy_matching_1 = __nccwpck_require__(9617);
+const file_manager_1 = __nccwpck_require__(6458);
 const log_handler_1 = __nccwpck_require__(1030);
-const git_1 = __nccwpck_require__(2131);
 function getRequiredInput(inputName) {
     const value = core.getInput(inputName, { required: true });
     if (!value) {
@@ -51652,7 +51249,11 @@ async function run() {
         // Masking secrets to prevent them from being logged
         core.setSecret(githubToken);
         core.setSecret(openaiApiKey);
-        const repo = github.context.repo;
+        // const repo = github.context.repo
+        const repo = {
+            owner: 'warestack',
+            repo: 'action-copilot'
+        };
         // const runId = github.context.runId
         if (!repo || !runId) {
             throw new Error('GitHub context payload missing necessary data (repository or run_id)');
@@ -51663,40 +51264,44 @@ async function run() {
         const git = new git_1.GitClient(githubToken);
         const githubClient = new github_1.GitHubApiClient(githubToken);
         const openaiClient = new openai_1.OpenAIApiClient(openaiApiKey);
-        const errors = [];
-        const fixes = [];
         let issueUrl;
         let prUrl;
+        const workflowPath = await githubClient.getWorkflowFilePath(repo.owner, repo.repo, parseInt(runId, 10));
         const logUrl = await githubClient.getWorkflowRunLogsUrl(repo.owner, repo.repo, parseInt(runId, 10));
         const jobs = await githubClient.getWorkflowRunJobs(repo.owner, repo.repo, parseInt(runId, 10));
         const logEntries = await (0, log_handler_1.downloadAndProcessLogsArchive)(logUrl);
-        for (let i = 0; i < jobs.length; i++) {
-            // const combinedErrors = extractErrors(rawLogs[i]).join('\n')
-            // if (combinedErrors) {
-            //   const errorHighlights = await openaiClient.analyzeLogs(combinedErrors)
-            //   // errors.push(highlightError)
-            //   // const fix = await openaiClient.proposeFixes(highlightError)
-            //   // if (fix) fixes.push(fix)
-            //   core.debug(`Error highlight: ${errorHighlights}\n`)
-            // }
-            const steps = jobs[i].steps || [];
-            for (let l = 0; l < steps.length; l++) {
-                if (steps[l].conclusion !== 'failure')
+        // Iterate though each job and its steps,
+        // only processing logs of the steps that have failed
+        for (const job of jobs) {
+            const steps = job.steps || [];
+            for (const step of steps) {
+                if (step.conclusion !== 'failure')
                     continue;
-                const logEntry = logEntries.find(entry => entry.filename === steps[l].name);
+                const logEntry = logEntries.find(entry => entry.filename === step.name);
                 if (logEntry) {
                     const errorHighlights = await openaiClient.analyzeLogs((0, log_handler_1.removeTimestamps)(logEntry.content));
+                    const openIssues = await githubClient.getOpenIssues(repo.owner, repo.repo);
                     const issueDetails = await openaiClient.generateIssueDetails(errorHighlights);
-                    issueUrl = await githubClient.createIssue(repo.owner, repo.repo, issueDetails.title, issueDetails.description);
+                    let similarIssue;
+                    if (openIssues)
+                        similarIssue = openIssues.find((issue) => {
+                            return (0, fuzzy_matching_1.isSimilar)(issue.title, issueDetails.title);
+                        });
+                    if (similarIssue) {
+                        core.info(`A similar issue already exists: ${similarIssue.html_url}`);
+                        issueUrl = similarIssue.html_url;
+                    }
+                    else {
+                        issueUrl = await githubClient.createIssue(repo.owner, repo.repo, issueDetails.title, issueDetails.body);
+                    }
+                    // Read YAML content from a GitHub workflow
+                    const yamlContent = await (0, file_manager_1.readYAML)(workflowPath.split('@')[0]);
                     if (issueUrl) {
-                        const prDetails = await openaiClient.generatePrDetails(issueDetails.description, issueUrl);
-                        // await git.clone(
-                        //   'dkargatzis',
-                        //   'tech_entity_recognition',
-                        //   'feature/env-and-pipelines-config'
-                        // )
-                        await git.patchCommitAndPush(prDetails.patch, prDetails.commit, prDetails.branch);
-                        prUrl = await githubClient.createPullRequest(repo.owner, repo.repo, prDetails.branch, 'main', prDetails.title, prDetails.description);
+                        const prDetails = await openaiClient.generatePrDetails(issueDetails.body, issueUrl, yamlContent);
+                        if (prDetails.patch != null) {
+                            await git.patchCommitAndPush(prDetails.patch, prDetails.commit, prDetails.branch);
+                            prUrl = await githubClient.createPullRequest(repo.owner, repo.repo, prDetails.branch, 'main', prDetails.title, prDetails.description);
+                        }
                     }
                 }
                 core.setOutput('issue-url', issueUrl);
@@ -51716,6 +51321,80 @@ async function run() {
     }
 }
 exports.run = run;
+
+
+/***/ }),
+
+/***/ 6458:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.readYAML = void 0;
+const fs_1 = __nccwpck_require__(7147);
+/**
+ * Reads a YAML file from the specified path using UTF-8 encoding.
+ * @param filePath The path to the YAML file.
+ * @returns A promise that resolves to the content of the YAML file as a string.
+ */
+async function readYAML(filePath) {
+    try {
+        // Change to the repository directory if not already there
+        process.chdir(process.env.GITHUB_WORKSPACE || '');
+        return await fs_1.promises.readFile(filePath, 'utf8');
+    }
+    catch (error) {
+        throw new Error(`Failed to read the YAML file at ${filePath}: ${error}`);
+    }
+}
+exports.readYAML = readYAML;
+
+
+/***/ }),
+
+/***/ 9617:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isSimilar = exports.levenshteinDistance = void 0;
+function levenshteinDistance(a, b) {
+    // Create a 2D array to store the distances
+    const matrix = new Array(a.length + 1);
+    for (let i = 0; i <= a.length; i++) {
+        matrix[i] = new Array(b.length + 1);
+    }
+    // Initialize the first row and column
+    for (let i = 0; i <= a.length; i++) {
+        matrix[i][0] = i;
+    }
+    for (let j = 0; j <= b.length; j++) {
+        matrix[0][j] = j;
+    }
+    // Fill in the rest of the array
+    for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+            if (a[i - 1] === b[j - 1]) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            }
+            else {
+                matrix[i][j] =
+                    Math.min(matrix[i - 1][j], matrix[i][j - 1], matrix[i - 1][j - 1]) + 1;
+            }
+        }
+    }
+    // Return the final distance
+    return matrix[a.length][b.length];
+}
+exports.levenshteinDistance = levenshteinDistance;
+function isSimilar(a, b, threshold = 0.3) {
+    const distance = levenshteinDistance(a, b);
+    const longestLength = Math.max(a.length, b.length);
+    return distance / longestLength < threshold;
+}
+exports.isSimilar = isSimilar;
 
 
 /***/ }),
