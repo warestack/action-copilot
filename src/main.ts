@@ -3,6 +3,7 @@ import * as github from '@actions/github'
 import { GitHubApiClient } from './api/github'
 import { OpenAIApiClient } from './api/openai'
 
+import { readYAML } from './utils/file_manager'
 import {
   downloadAndProcessLogsArchive,
   removeTimestamps
@@ -54,6 +55,11 @@ export async function run(): Promise<void> {
     let issueUrl
     let prUrl
 
+    const workflowPath = await githubClient.getWorkflowFilePath(
+      repo.owner,
+      repo.repo,
+      parseInt(runId, 10)
+    )
     const logUrl = await githubClient.getWorkflowRunLogsUrl(
       repo.owner,
       repo.repo,
@@ -94,11 +100,14 @@ export async function run(): Promise<void> {
             issueDetails.title,
             issueDetails.description
           )
+          // Read YAML content from a GitHub workflow
+          const yamlContent = await readYAML(workflowPath.split('@')[0])
 
           if (issueUrl) {
             const prDetails = await openaiClient.generatePrDetails(
-              issueDetails.description,
-              issueUrl
+              issueDetails.body,
+              issueUrl,
+              yamlContent
             )
             // await git.clone(
             //   'dkargatzis',

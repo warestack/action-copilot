@@ -5,7 +5,6 @@ import {
   Queries,
   ISSUE_INSTRUCTIONS,
   PR_INSTRUCTIONS,
-  workflowYamlContent,
   newlineRegex
 } from '../conf/constants'
 import * as core from '@actions/core'
@@ -69,7 +68,11 @@ export class OpenAIApiClient {
     return issueDetails
   }
 
-  async generatePrDetails(issue: string, issueUrl: string): Promise<PrDetails> {
+  async generatePrDetails(
+    issue: string,
+    issueUrl: string,
+    workflowYamlContent: string
+  ): Promise<PrDetails> {
     this.messages.push({
       role: 'user',
       content: `${Queries.GENERATE_PR_DETAILS}\n ${issue} \n ${workflowYamlContent} \n${PR_INSTRUCTIONS} \n'Issue URL: ${issueUrl}`
