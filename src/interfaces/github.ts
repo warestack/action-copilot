@@ -4,8 +4,10 @@
  * @interface IssueDetails
  */
 export interface IssueDetails {
+  id: number
   title: string
-  description: string
+  body: string
+  html_url: string
 }
 
 export interface PrDetails {

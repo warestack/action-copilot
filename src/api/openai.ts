@@ -34,20 +34,6 @@ export class OpenAIApiClient {
     return errorAnalysis.choices[0].message.content?.trim() || ''
   }
 
-  async proposeFixes(issue: string): Promise<string> {
-    this.messages.push({
-      role: 'user',
-      content: `${Queries.IDENTIFY_ERRORS}\n ${issue}`
-    })
-    const fixes = await this.client.chat.completions.create({
-      model: Models.GTP_4_TURBO_2024_04_09,
-      messages: this.messages,
-      max_tokens: Limits.MAX_TOKENS
-    })
-
-    return fixes.choices[0].message.content?.trim() || ''
-  }
-
   async generateIssueDetails(issue: string): Promise<IssueDetails> {
     this.messages.push({
       role: 'user',

@@ -1,12 +1,69 @@
 import { Octokit } from '@octokit/rest'
 import * as core from '@actions/core'
 import { Job } from '../interfaces/workflow'
+import { IssueDetails } from '../interfaces/github'
 
 export class GitHubApiClient {
   private client
 
   constructor(token: string) {
     this.client = new Octokit({ auth: token })
+  }
+
+  /**
+   * Fetches all open issues in the repository.
+   * @param {string} owner - The owner of the repository.
+   * @param {string} repo - The repository name.
+   * @returns {Promise<Array<object>>} - A promise that resolves to an array of open issues.
+   */
+  async getOpenIssues(owner: string, repo: string): Promise<IssueDetails[]> {
+    try {
+      const response = await this.client.issues.listForRepo({
+        owner,
+        repo,
+        state: 'open'
+      })
+
+      return response.data.map(issue => ({
+        id: issue.id,
+        title: issue.title,
+        body: issue.body || '',
+        html_url: issue.html_url
+      }))
+    } catch (error) {
+      if (error instanceof Error)
+        core.debug(`Error fetching open issues: ${error.message}`)
+      throw new Error('Error fetching open issues')
+    }
+  }
+
+  /**
+   * Retrieves the workflow file path for a specific workflow run.
+   *
+   * @param {string} repoOwner - The owner of the repository.
+   * @param {string} repoName - The repository name.
+   * @param {number} runId - The ID of the workflow run.
+   * @returns {Promise<string>} - A promise that resolves to the path of the workflow YAML file.
+   */
+  async getWorkflowFilePath(
+    repoOwner: string,
+    repoName: string,
+    runId: number
+  ): Promise<string> {
+    try {
+      const response = await this.client.actions.getWorkflowRun({
+        owner: repoOwner,
+        repo: repoName,
+        run_id: runId
+      })
+
+      core.debug(`Workflow File Path: ${response.data.path}`)
+      return response.data.path
+    } catch (error) {
+      if (error instanceof Error)
+        core.debug(`Error fetching workflow file path: ${error.message}`)
+      throw new Error('Error fetching workflow file path')
+    }
   }
 
   /**
@@ -77,37 +134,6 @@ export class GitHubApiClient {
           `Error fetching jobs for given workflow run: ${error.message}`
         )
       throw new Error('Error fetching jobs for given workflow run')
-    }
-  }
-
-  /**
-   * Retrieves the YAML file content of a workflow at a specific commit.
-   *
-   * @param {string} owner - The owner of the repository.
-   * @param {string} repo - The name of the repository.
-   * @param {string} path - The path to the YAML file.
-   * @param {string} sha - The commit SHA.
-   * @return {Promise<void>} - A promise representing the operation.
-   * @throws {Error} - If there is an error retrieving the file content.
-   */
-  async getWorkflowYAMLAtCommit(
-    owner: string,
-    repo: string,
-    path: string,
-    sha: string
-  ): Promise<any> {
-    try {
-      const response = await this.client.repos.getContent({
-        owner,
-        repo,
-        path,
-        sha
-      })
-      return response.data
-    } catch (error) {
-      if (error instanceof Error)
-        core.debug(`Error getting file content: ${error.message}`)
-      throw new Error('Error getting file content')
     }
   }
 

@@ -1,5 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
+
+import { GitClient } from './api/git'
 import { GitHubApiClient } from './api/github'
 import { OpenAIApiClient } from './api/openai'
 
@@ -9,9 +11,9 @@ import {
   downloadAndProcessLogsArchive,
   removeTimestamps
 } from './utils/log_handler'
+
 import { IssueDetails } from './interfaces/github'
 import { LogEntry } from './interfaces/log'
-import { GitClient } from './api/git'
 
 function getRequiredInput(inputName: string): string {
   const value = core.getInput(inputName, { required: true })
@@ -52,8 +54,7 @@ export async function run(): Promise<void> {
     const git = new GitClient(githubToken)
     const githubClient = new GitHubApiClient(githubToken)
     const openaiClient = new OpenAIApiClient(openaiApiKey)
-    const errors: string[] = []
-    const fixes: string[] = []
+
     let issueUrl
     let prUrl
 
@@ -74,21 +75,13 @@ export async function run(): Promise<void> {
     )
     const logEntries: LogEntry[] = await downloadAndProcessLogsArchive(logUrl)
 
-    for (let i = 0; i < jobs.length; i++) {
-      // const combinedErrors = extractErrors(rawLogs[i]).join('\n')
-      // if (combinedErrors) {
-      //   const errorHighlights = await openaiClient.analyzeLogs(combinedErrors)
-      //   // errors.push(highlightError)
-      //   // const fix = await openaiClient.proposeFixes(highlightError)
-      //   // if (fix) fixes.push(fix)
-      //   core.debug(`Error highlight: ${errorHighlights}\n`)
-      // }
-      const steps = jobs[i].steps || []
-      for (let l = 0; l < steps.length; l++) {
-        if (steps[l].conclusion !== 'failure') continue
-        const logEntry = logEntries.find(
-          entry => entry.filename === steps[l].name
-        )
+    // Iterate though each job and its steps,
+    // only processing logs of the steps that have failed
+    for (const job of jobs) {
+      const steps = job.steps || []
+      for (const step of steps) {
+        if (step.conclusion !== 'failure') continue
+        const logEntry = logEntries.find(entry => entry.filename === step.name)
         if (logEntry) {
           const errorHighlights = await openaiClient.analyzeLogs(
             removeTimestamps(logEntry.content)
@@ -130,24 +123,22 @@ export async function run(): Promise<void> {
               issueUrl,
               yamlContent
             )
-            // await git.clone(
-            //   'dkargatzis',
-            //   'tech_entity_recognition',
-            //   'feature/env-and-pipelines-config'
-            // )
-            await git.patchCommitAndPush(
-              prDetails.patch,
-              prDetails.commit,
-              prDetails.branch
-            )
-            prUrl = await githubClient.createPullRequest(
-              repo.owner,
-              repo.repo,
-              prDetails.branch,
-              'main',
-              prDetails.title,
-              prDetails.description
-            )
+
+            if (prDetails.patch != null) {
+              await git.patchCommitAndPush(
+                prDetails.patch,
+                prDetails.commit,
+                prDetails.branch
+              )
+              prUrl = await githubClient.createPullRequest(
+                repo.owner,
+                repo.repo,
+                prDetails.branch,
+                'main',
+                prDetails.title,
+                prDetails.description
+              )
+            }
           }
         }
         core.setOutput('issue-url', issueUrl)
