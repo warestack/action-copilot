@@ -3,11 +3,13 @@ import * as github from '@actions/github'
 import { GitHubApiClient } from './api/github'
 import { OpenAIApiClient } from './api/openai'
 
+import { isSimilar } from './utils/fuzzy_matching'
 import { readYAML } from './utils/file_manager'
 import {
   downloadAndProcessLogsArchive,
   removeTimestamps
 } from './utils/log_handler'
+import { IssueDetails } from './interfaces/github'
 import { LogEntry } from './interfaces/log'
 import { GitClient } from './api/git'
 
@@ -91,15 +93,34 @@ export async function run(): Promise<void> {
           const errorHighlights = await openaiClient.analyzeLogs(
             removeTimestamps(logEntry.content)
           )
+
+          const openIssues: IssueDetails[] = await githubClient.getOpenIssues(
+            repo.owner,
+            repo.repo
+          )
           const issueDetails =
             await openaiClient.generateIssueDetails(errorHighlights)
 
-          issueUrl = await githubClient.createIssue(
-            repo.owner,
-            repo.repo,
-            issueDetails.title,
-            issueDetails.description
-          )
+          let similarIssue
+          if (openIssues)
+            similarIssue = openIssues.find((issue: IssueDetails) => {
+              return isSimilar(issue.title, issueDetails.title)
+            })
+
+          if (similarIssue) {
+            core.info(
+              `A similar issue already exists: ${similarIssue.html_url}`
+            )
+            issueUrl = similarIssue.html_url
+          } else {
+            issueUrl = await githubClient.createIssue(
+              repo.owner,
+              repo.repo,
+              issueDetails.title,
+              issueDetails.body
+            )
+          }
+
           // Read YAML content from a GitHub workflow
           const yamlContent = await readYAML(workflowPath.split('@')[0])
 
